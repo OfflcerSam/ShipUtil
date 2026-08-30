@@ -2,19 +2,30 @@
   "id": 900,
   "icon": 30,
   "color": "AZURE",
-  "name": "Arrowhead (JSON)",
-  "description": "ShipTest Imported",
+  "name": "Arrowhead",
+  "description": "Maybe one day you could be a real arrow.",
   "tier": 0,
   "rarity": "UNCOMMON",
   "renderIndex": 350,
   "engineDisplacement": 37,
   "hull": 300.0,
   "cargo": 61.875,
+
   "weaponLayout": [
-    { "angle": 32.5, "distance": -9.2 },
-    { "angle": -32.5, "distance": -9.2 },
-    { "angle": 0.0, "distance": -6.0 }
+    {
+      "angle": 32.5,
+      "distance": -9.2
+    },
+    {
+      "angle": -32.5,
+      "distance": -9.2
+    },
+    {
+      "angle": 0.0,
+      "distance": -6.0
+    }
   ],
+
   "slots": {
     "energy": 2,
     "armor": 1,

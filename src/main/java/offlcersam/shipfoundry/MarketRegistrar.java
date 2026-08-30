@@ -3,38 +3,52 @@ package offlcersam.shipfoundry;
 import game.markets.Market;
 import game.markets.MarketDatabase;
 import game.markets.MarketItem;
-import items.Item;
 import illuminatus.core.datastructures.List;
-import items.ItemTypeConstantsInterface;
+import items.Item;
 import mods.ModLogger;
+
 import java.lang.reflect.Field;
 
 /*
-TODO: Put JSON file ship data into here, expand upon it to include market tier customization (if possible).
+ * Registers ships that opted into market listings through their JSON data.
  */
 public final class MarketRegistrar {
 
     private static boolean registered;
 
-    private MarketRegistrar() { }
+    private MarketRegistrar() {
+    }
 
-    // Lazily adds all ships to every market tier for the moment, probably won't change until the next update.
     public static void registerMarkets() {
-        if (registered) { return; }
+        if (registered) {
+            return;
+        }
         registered = true;
 
         int updatedMarkets = 0;
         int addedShips = 0;
-        int[] ships = ShipRegistrar.getShipDatabaseIDs();
+
+        /*
+         * Only ships with "registration": { "market": true } are included here.
+         */
+        int[] ships = ShipRegistrar.getMarketShipDatabaseIDs();
+
+        if (ships.length == 0) {
+            ModLogger.log("[ShipFoundry] No custom ships opted into market registration");
+            return;
+        }
 
         List<Market> markets = getMarkets();
 
         if (markets != null) {
             for (int marketIndex = 0; marketIndex < markets.size(); marketIndex++) {
                 Market market = markets.getChecked(marketIndex);
-                if (market == null) {continue;}
 
-                // Check MarketList for addStationIndices
+                if (market == null) {
+                    continue;
+                }
+
+                // Check MarketList for addStationIndices.
                 if (market.stationMatches(501) || market.stationMatches(511)) {
 
                     for (int shipID : ships) {
@@ -58,7 +72,7 @@ public final class MarketRegistrar {
         }
 
         ModLogger.log(
-                "[ShipTest] Added "
+                "[ShipFoundry] Added "
                         + addedShips
                         + " custom ship listings to "
                         + updatedMarkets
@@ -73,6 +87,7 @@ public final class MarketRegistrar {
             field.setAccessible(true);
             return (List<Market>) field.get(null);
         } catch (ReflectiveOperationException exception) {
+            ModLogger.log("[ShipFoundry] Could not access MarketDatabase markets: " + exception);
             return null;
         }
     }

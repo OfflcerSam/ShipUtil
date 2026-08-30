@@ -6,40 +6,45 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Example JSON:
- * {
- * "id": 350,
- * "icon": 30,
- * "color": "AZURE",
- * "name": "Arrowhead",
- * "description": "Maybe one day you could be a real arrow.",
- * "tier": 0,
- * "rarity": "UNCOMMON",
- * "renderIndex": 350,
- * "engineDisplacement": 37,
- * "hull": 300.0,
- * "cargo": 82.5,
- * "weaponLayout": [
- * { "angle": 32.5, "distance": -9.2 },
- * { "angle": -32.5, "distance": -9.2 },
- * { "angle": 0.0, "distance": -6.0 }
- * ],
- * "slots": {
- * "energy": 2,
- * "armor": 1,
- * "shield": 1,
- * "device": 0,
- * "module": 1,
- * "engine": 1
- * }
- * }
+ * Required ShipDefinitions for a ship.
  */
 public record ShipDefinition(int id, int icon, String color, String name, String description, int tier, String rarity,
                              int renderIndex, int engineDisplacement, float hull, float cargo,
                              List<TurretSlot> weaponLayout, int energySlots, int armorSlots, int shieldSlots,
-                             int deviceSlots, int moduleSlots, int engineSlots) {
+                             int deviceSlots, int moduleSlots, int engineSlots,
+                             Registration registration) {
 
     public record TurretSlot(double angle, double distance) {
+    }
+
+    /**
+     * Optional registration settings for a ship.
+     * Sections that are not present in the JSON are simply not registered.
+     */
+    public record Registration(boolean market, List<NpcSpawn> npc, List<BossSpawn> boss, PoliceSpawn police) {
+
+        // Returns an empty registration configuration.
+        public static Registration empty() {
+            return new Registration(false, List.of(), List.of(), null);
+        }
+    }
+
+    /**
+     * Registers this ship as a normal tiered NPC.
+     */
+    public record NpcSpawn(int tier, int weight) {
+    }
+
+    /**
+     * Registers this ship as a boss for a sector tier.
+     */
+    public record BossSpawn(int sectorTier, int weight) {
+    }
+
+    /**
+     * Registers this ship as a police spawn.
+     */
+    public record PoliceSpawn(int weight) {
     }
 
     /**
@@ -65,6 +70,7 @@ public record ShipDefinition(int id, int icon, String color, String name, String
             double distance = slot.get("distance").asDouble();
             layout.add(new TurretSlot(angle, distance));
         }
+
         if (layout.isEmpty()) {
             throw new JsonValue.JsonException("weaponLayout must have at least one slot");
         }
@@ -77,8 +83,103 @@ public record ShipDefinition(int id, int icon, String color, String name, String
         int moduleSlots = slots.getInt("module", 0);
         int engineSlots = slots.getInt("engine", 0);
 
-        return new ShipDefinition(id, icon, color, name, description, tier, rarity, renderIndex,
-                engineDisplacement, hull, cargo, layout, energySlots, armorSlots, shieldSlots,
-                deviceSlots, moduleSlots, engineSlots);
+        Registration registration = parseRegistration(root);
+
+        return new ShipDefinition(
+                id,
+                icon,
+                color,
+                name,
+                description,
+                tier,
+                rarity,
+                renderIndex,
+                engineDisplacement,
+                hull,
+                cargo,
+                layout,
+                energySlots,
+                armorSlots,
+                shieldSlots,
+                deviceSlots,
+                moduleSlots,
+                engineSlots,
+                registration
+        );
     }
+
+    /**
+     * Parses optional registration settings.
+     * If the "registration" object does not exist,
+     * the ship is only registered as a usable ship and will not be added to markets or spawn pools.
+     */
+    private static Registration parseRegistration(JsonValue root) {
+        JsonValue registrationValue;
+
+        try {
+            registrationValue = root.get("registration");
+        } catch (JsonValue.JsonException ignored) {
+            return Registration.empty();
+        }
+
+        boolean market = registrationValue.getBoolean("market", false);
+
+        List<NpcSpawn> npc = new ArrayList<>();
+
+        try {
+            for (JsonValue entry : registrationValue.getArray("npc")) {
+                int tier = entry.get("tier").asInt();
+                int weight = entry.getInt("weight", 1);
+
+                if (weight < 1) {
+                    throw new JsonValue.JsonException("npc weight must be at least 1");
+                }
+
+                npc.add(new NpcSpawn(tier, weight));
+            }
+        } catch (JsonValue.JsonException ignored) {
+            // NPC registration is optional.
+        }
+
+        List<BossSpawn> boss = new ArrayList<>();
+
+        try {
+            for (JsonValue entry : registrationValue.getArray("boss")) {
+                int sectorTier = entry.get("sectorTier").asInt();
+                int weight = entry.getInt("weight", 1);
+
+                if (weight < 1) {
+                    throw new JsonValue.JsonException("boss weight must be at least 1");
+                }
+
+                boss.add(new BossSpawn(sectorTier, weight));
+            }
+        } catch (JsonValue.JsonException ignored) {
+            // Boss registration is optional.
+        }
+
+        PoliceSpawn police = null;
+
+        try {
+            JsonValue policeValue = registrationValue.get("police");
+
+            int weight = policeValue.getInt("weight", 1);
+
+            if (weight < 1) {
+                throw new JsonValue.JsonException("police weight must be at least 1");
+            }
+
+            police = new PoliceSpawn(weight);
+        } catch (JsonValue.JsonException ignored) {
+            // Police registration is optional.
+        }
+
+        return new Registration(
+                market,
+                List.copyOf(npc),
+                List.copyOf(boss),
+                police
+        );
+    }
+
 }
