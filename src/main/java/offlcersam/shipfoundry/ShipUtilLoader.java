@@ -154,6 +154,8 @@ public final class ShipUtilLoader {
             return false;
         }
 
+        ShipGraphicsLoader.loadShipTexture(file.getParent(), def);
+
         CLAIMED_IDS.put(def.id(), modName);
         loadedShips.add(def);
         return true;
