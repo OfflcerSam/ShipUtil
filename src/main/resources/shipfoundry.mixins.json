@@ -7,7 +7,6 @@
     "MainSetupMixin",
     "SpawnNPCMixin",
     "GraphicsLoaderMixin",
-    "CraftingTableMixin",
     "PlayerMixin"
   ],
   "injectors": {
