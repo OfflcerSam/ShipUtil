@@ -22,6 +22,9 @@ public final class ShipRegistrar {
     /** Stores the base IDs of ships that should be added to markets. */
     private static final List<Integer> MARKET_SHIP_IDS = new ArrayList<>();
 
+    /** Stores every successfully registered ship's full definition, for anything that needs more than just an id (e.g. recipes). */
+    private static final List<ShipDefinition> LOADED_SHIPS = new ArrayList<>();
+
     private ShipRegistrar() {
     }
 
@@ -52,8 +55,10 @@ public final class ShipRegistrar {
         return ids;
     }
 
-    /** Converts a ship base ID into the game's ship database ID. */
-    private static int toDatabaseID(int shipBaseId) {
+    /**
+     * Converts a ship base ID into the game's ship database/item ID
+     */
+    public static int toDatabaseID(int shipBaseId) {
         return ItemTypeConstantsInterface.SHIP * 10000 + shipBaseId;
     }
 
@@ -99,6 +104,8 @@ public final class ShipRegistrar {
             MARKET_SHIP_IDS.add(def.id());
             ModLogger.log("[ShipFoundry] Registered ship " + def.name() + " for market listings");
         }
+
+        LOADED_SHIPS.add(def);
 
         ModLogger.log("[ShipFoundry] Registered ship " + def.name() + " (id: " + def.id() + ")");
     }
@@ -152,5 +159,10 @@ public final class ShipRegistrar {
     /** Returns the number of registered ships. */
     public static int getRegisteredShipCount() {
         return REGISTERED_SHIP_IDS.size();
+    }
+
+    /** Returns every successfully registered ship's full definition. */
+    public static List<ShipDefinition> getLoadedShips() {
+        return List.copyOf(LOADED_SHIPS);
     }
 }

@@ -12,7 +12,7 @@ public record ShipDefinition(int id, int icon, String color, String name, String
                              int renderIndex, int engineDisplacement, float hull, float cargo,
                              List<TurretSlot> weaponLayout, int energySlots, int armorSlots, int shieldSlots,
                              int deviceSlots, int moduleSlots, int engineSlots,
-                             Registration registration) {
+                             Registration registration, Recipe recipe) {
 
     public record TurretSlot(double angle, double distance) {
     }
@@ -45,6 +45,20 @@ public record ShipDefinition(int id, int icon, String color, String name, String
      * Registers this ship as a police spawn.
      */
     public record PoliceSpawn(int weight) {
+    }
+
+    /**
+     * Optional crafting recipe for this ship.
+     * Mirrors crafting.CraftingTable#addRecipe(String, int, int, int, int, int, int, int, int, int),
+     * which always takes exactly a blueprint slot plus 3 fixed ingredient slots.
+     */
+    public record Recipe(String label, int blueprintId, int blueprintAmount, List<Ingredient> ingredients) {
+    }
+
+    /**
+     * One ingredient slot in a Recipe - an item id and the amount of it consumed.
+     */
+    public record Ingredient(int id, int amount) {
     }
 
     /**
@@ -84,6 +98,7 @@ public record ShipDefinition(int id, int icon, String color, String name, String
         int engineSlots = slots.getInt("engine", 0);
 
         Registration registration = parseRegistration(root);
+        Recipe recipe = parseRecipe(root);
 
         return new ShipDefinition(
                 id,
@@ -104,7 +119,8 @@ public record ShipDefinition(int id, int icon, String color, String name, String
                 deviceSlots,
                 moduleSlots,
                 engineSlots,
-                registration
+                registration,
+                recipe
         );
     }
 
@@ -171,5 +187,35 @@ public record ShipDefinition(int id, int icon, String color, String name, String
                 List.copyOf(boss),
                 police
         );
+    }
+
+    /**
+     * Parses the optional "recipe" section.
+     * If it does not exist, the ship simply isn't craftable, CraftingTableMixin skips ships with a null recipe.
+     */
+    private static Recipe parseRecipe(JsonValue root) {
+        JsonValue recipeValue = root.getOrNull("recipe");
+
+        if (recipeValue == null || recipeValue.isNull()) {
+            return null;
+        }
+
+        String label = recipeValue.get("label").asString();
+        int blueprintId = recipeValue.get("blueprintId").asInt();
+        int blueprintAmount = recipeValue.getInt("blueprintAmount", 1);
+
+        List<Ingredient> ingredients = new ArrayList<>();
+        for (JsonValue entry : recipeValue.getArray("ingredients")) {
+            ingredients.add(new Ingredient(entry.get("id").asInt(), entry.get("amount").asInt()));
+        }
+
+        // CraftingTable#addRecipe always takes exactly 3 ingredient slots - no vanilla overload takes fewer or more.
+        if (ingredients.size() != 3) {
+            throw new JsonValue.JsonException(
+                    "recipe.ingredients must have exactly 3 entries, found " + ingredients.size()
+            );
+        }
+
+        return new Recipe(label, blueprintId, blueprintAmount, List.copyOf(ingredients));
     }
 }
