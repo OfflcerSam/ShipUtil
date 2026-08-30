@@ -4,7 +4,11 @@
   "package": "offlcersam.shipfoundry.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "MainSetupMixin"
+    "MainSetupMixin",
+    "SpawnNPCMixin",
+    "GraphicsLoaderMixin",
+    "CraftingTableMixin",
+    "PlayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
