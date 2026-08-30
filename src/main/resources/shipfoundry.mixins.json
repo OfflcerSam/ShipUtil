@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "offlcersam.shipfoundry.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "MainSetupMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

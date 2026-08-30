@@ -1,0 +1,22 @@
+<component name="libraryTable">
+  <library name="Sector Space">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../../SteamLibrary/steamapps/common/Sector Space/Sector Space.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../SteamLibrary/steamapps/common/Sector Space/libs/asm-9.9.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../SteamLibrary/steamapps/common/Sector Space/libs/asm-analysis-9.9.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../SteamLibrary/steamapps/common/Sector Space/libs/asm-commons-9.9.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../SteamLibrary/steamapps/common/Sector Space/libs/asm-tree-9.9.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../SteamLibrary/steamapps/common/Sector Space/libs/asm-util-9.9.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../SteamLibrary/steamapps/common/Sector Space/libs/fabric-loader-0.18.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../SteamLibrary/steamapps/common/Sector Space/libs/jogg-0.0.7.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../SteamLibrary/steamapps/common/Sector Space/libs/jorbis-0.0.15.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../SteamLibrary/steamapps/common/Sector Space/libs/jSerialComm-1.3.11.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../SteamLibrary/steamapps/common/Sector Space/libs/lwjgl.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../SteamLibrary/steamapps/common/Sector Space/libs/slick-util.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../SteamLibrary/steamapps/common/Sector Space/libs/sponge-mixin-0.15.3+mixin.0.8.7.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../SteamLibrary/steamapps/common/Sector Space/SSFML_Build.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
