@@ -15,7 +15,7 @@ Every `.json` file directly inside it is loaded as one ship. Ship IDs must be un
 If two files claim the same id, the second one loaded is skipped with a log message naming the folder that already claimed it.
 
 ## Current Schema
-
+This will be outdated and reworked once everything is figured out.
 ```json
 {
   "id": 350,
