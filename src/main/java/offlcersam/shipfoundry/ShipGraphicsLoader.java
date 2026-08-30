@@ -1,11 +1,11 @@
 package offlcersam.shipfoundry;
 
 import mods.ModLogger;
-import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 public final class ShipGraphicsLoader {
@@ -35,7 +35,7 @@ public final class ShipGraphicsLoader {
             return;
         }
 
-        Path entityFolder = FabricLoader.getInstance().getGameDir().resolve(TEXTURE_FOLDER_NAME);
+        Path entityFolder = Paths.get("").toAbsolutePath().resolve(TEXTURE_FOLDER_NAME);
         Path destinationTexture = entityFolder.resolve(textureFileName);
 
         try {
