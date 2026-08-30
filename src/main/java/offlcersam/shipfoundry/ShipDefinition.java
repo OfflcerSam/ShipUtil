@@ -114,11 +114,9 @@ public record ShipDefinition(int id, int icon, String color, String name, String
      * the ship is only registered as a usable ship and will not be added to markets or spawn pools.
      */
     private static Registration parseRegistration(JsonValue root) {
-        JsonValue registrationValue;
+        JsonValue registrationValue = root.getOrNull("registration");
 
-        try {
-            registrationValue = root.get("registration");
-        } catch (JsonValue.JsonException ignored) {
+        if (registrationValue == null || registrationValue.isNull()) {
             return Registration.empty();
         }
 
@@ -126,43 +124,38 @@ public record ShipDefinition(int id, int icon, String color, String name, String
 
         List<NpcSpawn> npc = new ArrayList<>();
 
-        try {
-            for (JsonValue entry : registrationValue.getArray("npc")) {
+        JsonValue npcValue = registrationValue.getOrNull("npc");
+        if (npcValue != null && !npcValue.isNull()) {
+            for (JsonValue entry : npcValue.asArray()) {
                 int tier = entry.get("tier").asInt();
                 int weight = entry.getInt("weight", 1);
 
                 if (weight < 1) {
                     throw new JsonValue.JsonException("npc weight must be at least 1");
                 }
-
                 npc.add(new NpcSpawn(tier, weight));
             }
-        } catch (JsonValue.JsonException ignored) {
-            // NPC registration is optional.
         }
 
         List<BossSpawn> boss = new ArrayList<>();
 
-        try {
-            for (JsonValue entry : registrationValue.getArray("boss")) {
+        JsonValue bossValue = registrationValue.getOrNull("boss");
+        if (bossValue != null && !bossValue.isNull()) {
+            for (JsonValue entry : bossValue.asArray()) {
                 int sectorTier = entry.get("sectorTier").asInt();
                 int weight = entry.getInt("weight", 1);
 
                 if (weight < 1) {
                     throw new JsonValue.JsonException("boss weight must be at least 1");
                 }
-
                 boss.add(new BossSpawn(sectorTier, weight));
             }
-        } catch (JsonValue.JsonException ignored) {
-            // Boss registration is optional.
         }
 
         PoliceSpawn police = null;
 
-        try {
-            JsonValue policeValue = registrationValue.get("police");
-
+        JsonValue policeValue = registrationValue.getOrNull("police");
+        if (policeValue != null && !policeValue.isNull()) {
             int weight = policeValue.getInt("weight", 1);
 
             if (weight < 1) {
@@ -170,8 +163,6 @@ public record ShipDefinition(int id, int icon, String color, String name, String
             }
 
             police = new PoliceSpawn(weight);
-        } catch (JsonValue.JsonException ignored) {
-            // Police registration is optional.
         }
 
         return new Registration(
@@ -181,5 +172,4 @@ public record ShipDefinition(int id, int icon, String color, String name, String
                 police
         );
     }
-
 }

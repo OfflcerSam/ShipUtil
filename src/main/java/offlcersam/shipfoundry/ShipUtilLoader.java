@@ -10,7 +10,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -47,11 +49,12 @@ public final class ShipUtilLoader {
             return;
         }
 
+        List<ShipDefinition> loadedShips = new ArrayList<>();
         int totalLoaded = 0;
 
         try (Stream<Path> modFolders = Files.list(shipsRoot)) {
             for (Path modFolder : modFolders.filter(Files::isDirectory).toList()) {
-                totalLoaded += loadModFolder(modFolder);
+                totalLoaded += loadModFolder(modFolder, loadedShips);
             }
         } catch (IOException e) {
             ModLogger.log("[ShipFoundry] Failed to list " + shipsRoot + ": " + e);
@@ -64,6 +67,14 @@ public final class ShipUtilLoader {
          */
         if (totalLoaded > 0) {
             ShipList.loadShipStatsFromItems(_database.ItemDatabase.itemDataFile);
+
+            /*
+             * Register NPC, boss and police spawn settings after all ships
+             * have been written and their stats have been loaded.
+             */
+            for (ShipDefinition ship : loadedShips) {
+                ShipRegistrar.registerSpawnSettings(ship);
+            }
         }
 
         ModLogger.log(
@@ -72,7 +83,7 @@ public final class ShipUtilLoader {
         );
     }
 
-    private static int loadModFolder(Path modFolder) {
+    private static int loadModFolder(Path modFolder, List<ShipDefinition> loadedShips) {
         String modName = modFolder.getFileName().toString();
         int loaded = 0;
 
@@ -81,7 +92,7 @@ public final class ShipUtilLoader {
                     .filter(p -> p.toString().toLowerCase().endsWith(".json"))
                     .toList()) {
 
-                if (loadShipFile(modName, file)) {
+                if (loadShipFile(modName, file, loadedShips)) {
                     loaded++;
                 }
             }
@@ -97,7 +108,7 @@ public final class ShipUtilLoader {
         return loaded;
     }
 
-    private static boolean loadShipFile(String modName, Path file) {
+    private static boolean loadShipFile(String modName, Path file, List<ShipDefinition> loadedShips) {
         String text;
 
         try {
@@ -144,6 +155,7 @@ public final class ShipUtilLoader {
         }
 
         CLAIMED_IDS.put(def.id(), modName);
+        loadedShips.add(def);
         return true;
     }
 }

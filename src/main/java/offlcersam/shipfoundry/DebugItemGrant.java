@@ -3,32 +3,67 @@ package offlcersam.shipfoundry;
 import game.Player;
 import mods.ModLogger;
 
-import static offlcersam.shipfoundry.MarketRegistrar.*;
-
 /*
-TODO: Make this read from the JSON files instead and give every registered ship of the folder name, or just "ShipTest" for all.
- */
+    TODO: Make this read from the JSON files instead and give every registered ship of the folder name, or just "ShipTest" for all.
+    Currently this grants every successfully registered ShipFoundry JSON ship.
+*/
 public final class DebugItemGrant {
-    // Set to true to automatically deposit the ship when loading your character
+
+    // Set to true to automatically deposit the ships when loading your character.
     // Maybe make into config option if a config manager is made.
     private static final boolean ENABLE_DEBUG_GRANT = true;
+
     private static final String DEBUG_CHARACTER_NAME = "STEST";
 
-    private DebugItemGrant() { }
+    /*
+     * Prevents the ships from being granted repeatedly if the player-loading
+     * code calls this method more than once during the same game session.
+     */
+    private static boolean shipsGranted;
+
+    private DebugItemGrant() {
+    }
 
     public static void grantShipsToDebugCharacter() {
         if (!ENABLE_DEBUG_GRANT) {
             return;
         }
+
+        if (shipsGranted) {
+            return;
+        }
+
         if (!DEBUG_CHARACTER_NAME.equalsIgnoreCase(Player.currentName)) {
             return;
         }
+
         if (Player.ship == null || Player.ship.cargo == null) {
-            ModLogger.log("[ShipTest] Could not grant Ships: player cargo is not loaded.");
+            ModLogger.log("[ShipFoundry] Could not grant ships: player cargo is not loaded.");
             return;
         }
+
         int[] ships = ShipRegistrar.getShipDatabaseIDs();
-        for (int shipID : ships) {Player.ship.cargo.add(shipID, 1);}
-        ModLogger.log("[ShipTest] Granted " + ships.length + " ships to STEST cargo hold successfully.");
+
+        if (ships.length == 0) {
+            ModLogger.log("[ShipFoundry] No registered ships available to grant.");
+            return;
+        }
+
+        int granted = 0;
+
+        for (int shipID : ships) {
+            Player.ship.cargo.add(shipID, 1);
+            granted++;
+        }
+
+        shipsGranted = true;
+
+        ModLogger.log(
+                "[ShipFoundry] Granted "
+                        + granted
+                        + " registered ship(s) to "
+                        + DEBUG_CHARACTER_NAME
+                        + "'s cargo hold successfully."
+        );
     }
 }

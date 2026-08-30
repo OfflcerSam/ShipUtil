@@ -59,6 +59,8 @@ public final class ShipRegistrar {
 
     /**
      * Registers a ship from its JSON definition.
+     * NPC, boss and police spawning are registered later after every custom
+     * ship has been written and ShipList has reloaded its ship stats.
      */
     public static void registerShip(ShipDefinition def) {
         WeaponTurretPlacement placement = new WeaponTurretPlacement();
@@ -98,15 +100,13 @@ public final class ShipRegistrar {
             ModLogger.log("[ShipFoundry] Registered ship " + def.name() + " for market listings");
         }
 
-        registerNPCSpawns(def);
-
         ModLogger.log("[ShipFoundry] Registered ship " + def.name() + " (id: " + def.id() + ")");
     }
 
     /**
      * Registers optional NPC, boss and police spawning from the ship JSON.
      */
-    private static void registerNPCSpawns(ShipDefinition def) {
+    public static void registerSpawnSettings(ShipDefinition def) {
         ShipDefinition.Registration registration = def.registration();
 
         for (ShipDefinition.NpcSpawn npc : registration.npc()) {
@@ -134,7 +134,6 @@ public final class ShipRegistrar {
     }
 
     /**
-
      * Resolves game constants such as Color.AZURE and TypeTag.UNCOMMON
      * from their names stored in JSON.
      */
@@ -144,8 +143,8 @@ public final class ShipRegistrar {
         } catch (ReflectiveOperationException e) {
             throw new IllegalArgumentException(
                     "Unknown " + fieldLabel + " " + name
-                    + " - check the exact constant name on "
-                    + type.getName()
+                            + " - check the exact constant name on "
+                            + type.getName()
             );
         }
     }

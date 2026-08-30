@@ -29,15 +29,24 @@ public final class JsonParser {
 
     private JsonValue parseValue() {
         char c = peek();
-        switch (c) {
-            case '{': return parseObject();
-            case '[': return parseArray();
-            case '"': return JsonValue.ofString(parseString());
-            case 't': expect("true"); return JsonValue.ofBoolean(true);
-            case 'f': expect("false"); return JsonValue.ofBoolean(false);
-            case 'n': expect("null"); return JsonValue.ofNull();
-            default: return parseNumber();
-        }
+        return switch (c) {
+            case '{' -> parseObject();
+            case '[' -> parseArray();
+            case '"' -> JsonValue.ofString(parseString());
+            case 't' -> {
+                expect("true");
+                yield JsonValue.ofBoolean(true);
+            }
+            case 'f' -> {
+                expect("false");
+                yield JsonValue.ofBoolean(false);
+            }
+            case 'n' -> {
+                expect("null");
+                yield JsonValue.ofNull();
+            }
+            default -> parseNumber();
+        };
     }
 
     private JsonValue parseObject() {
