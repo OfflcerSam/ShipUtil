@@ -33,7 +33,7 @@ Example that is included in repo:
   "icon": 30,
   "color": "AZURE",
   "name": "Arrowhead",
-  "description": "Maybe one day you could be a real arrow.",
+  "description": "Maybe one day you could be a real arrow. Inbuilt: Boostyer",
   "tier": 0,
   "rarity": "UNCOMMON",
   "renderIndex": 1000,
@@ -42,9 +42,18 @@ Example that is included in repo:
   "cargo": 61.875,
 
   "weaponLayout": [
-    { "angle": 32.5, "distance": -9.2 },
-    { "angle": -32.5, "distance": -9.2 },
-    { "angle": 0.0, "distance": -6.0 }
+    {
+      "angle": 32.5,
+      "distance": -9.2
+    },
+    {
+      "angle": -32.5,
+      "distance": -9.2
+    },
+    {
+      "angle": 0.0,
+      "distance": -6.0
+    }
   ],
 
   "slots": {
@@ -70,8 +79,16 @@ Example that is included in repo:
     "police": { "weight": 1 },
 
     "uniqueLoot": [
-      { "id": 20139, "amount": 1, "chance": 100 },
-      { "id": 10911, "amount": 1, "chance": 25 }
+      {
+        "id": 20141,
+        "amount": 1,
+        "chance": 100
+      },
+      {
+        "id": 20130,
+        "amount": 1,
+        "chance": 25
+      }
     ]
   },
 
@@ -143,18 +160,57 @@ Adds the ship to the standard crafting table (`CraftingTableNormal`). If omitted
 
 The ship's own database/market ID in the recipe is derived as `100000 + id`, if you want to add it as a craftable.
 
-Lazily copied from CraftingTableNormal, use IDs not the variable names.
-```
-CuNode = 10701; AgNode = 10702; AuNode = 10703; PtNode = 10704; OsNode = 10705; FeMatx = 10711; AlMatx = 10712;
-TiMatx = 10713; WgMatx = 10714; VaMatx = 10715; bpKineT0_1 = 20101; bpEMT0_1 = 20102; bpFldT0_1 = 20103;
-bpBulkT0_1 = 20104; bpContT0_1 = 20105; bpAmmoT0_1 = 20106; bpShipT0_1 = 20107; enrFLD = 10815; drkFLD = 10816; 
-bpKineT2 = 20111; bpEMT2 = 20112; bpFldT2 = 20113; bpBulkT2 = 20114; bpContT2 = 20115; bpAmmoT2 = 20116;
-bpShipT2 = 20117; enrGEM = 10079; drkGEM = 10067; bpKineT3_4 = 20121; bpEMT3_4 = 20122; bpFldT3_4 = 20123; 
-bpBulkT3_4 = 20124; ibpContT3_4 = 20125; bpAmmoT3 = 20126; bpShipT3 = 20127; orgGEL = 10069; bpKineT5_6 = 20131;
-bpEMT5_6 = 20132; bpFldT5_6 = 20133; bpBulkT5_6 = 20134; bpContT5_6 = 20135; bpAmmoT4_5 = 20136; bpShipT4_5 = 20137;
-bpLnchT0_1 = 20108; bpLnchT2 = 20118; bpLnchT3 = 20128; bpLnchT4_5 = 20138; tabletA = 10817; tabletB = 10818;
-bpCovertPlans = 20129; bpCarrierPlans = 20130; bpSpecterPlans = 20139; bpArchPlans = 20140; bpValkPlans = 20141;
-```
+Blueprint/material variable names below are exactly as named in the decompiled `CraftingTableNormal.init()`, use the **IDs** not the name.
+
+**Processed Materials:**
+
+| Tier Range | Node           | Matrix         |
+|------------|----------------|----------------|
+| 0-1        | `CuNode` 10701 | `FeMatx` 10711 |
+| 2          | `AgNode` 10702 | `AlMatx` 10712 |
+| 3-4        | `AuNode` 10703 | `TiMatx` 10713 |
+| 4-5        | `PtNode` 10704 | `WgMatx` 10714 |
+| 5-6        | `OsNode` 10705 | `VaMatx` 10715 |
+
+**Energy / Fluids / Gems / Tablets:**
+
+| Material  | ID    | Notes                                                   |
+|-----------|-------|---------------------------------------------------------|
+| `enrGEM`  | 10079 | Energized essence, seen in tier 0-3 recipes.            |
+| `drkGEM`  | 10067 | Dark essence, seen in tier 0-3 recipes.                 |
+| `enrFLD`  | 10815 | Energized essence, seen in tier 4-6 recipes.            |
+| `drkFLD`  | 10816 | Dark essence, seen in tier 4-6 recipes.                 |
+| `orgGEL`  | 10069 | Organic gel, used across all tiers 0-6.                 |
+| `tabletA` | 10817 | Rare tablet, only seen in tier 4-6 unique ship recipes. |
+| `tabletB` | 10818 | Rare tablet, only seen in tier 4-6 unique ship recipes. |
+
+**Kinetic / EM / Field / Bulk / Container blueprints:**
+
+| Tier Range | Kinetic            | EM               | Field             | Bulk               | Container          |
+|------------|--------------------|------------------|-------------------|--------------------|--------------------|
+| 0-1        | `bpKineT0_1` 20101 | `bpEMT0_1` 20102 | `bpFldT0_1` 20103 | `bpBulkT0_1` 20104 | `bpContT0_1` 20105 |
+| 2          | `bpKineT2` 20111   | `bpEMT2` 20112   | `bpFldT2` 20113   | `bpBulkT2` 20114   | `bpContT2` 20115   |
+| 3-4        | `bpKineT3_4` 20121 | `bpEMT3_4` 20122 | `bpFldT3_4` 20123 | `bpBulkT3_4` 20124 | `bpContT3_4` 20125 |
+| 5-6        | `bpKineT5_6` 20131 | `bpEMT5_6` 20132 | `bpFldT5_6` 20133 | `bpBulkT5_6` 20134 | `bpContT5_6` 20135 |
+
+**Ammo / Ship / Launcher blueprints:**
+
+| Tier Range | Ammo               | Ship               | Launcher           |
+|------------|--------------------|--------------------|--------------------|
+| 0-1        | `bpAmmoT0_1` 20106 | `bpShipT0_1` 20107 | `bpLnchT0_1` 20108 |
+| 2          | `bpAmmoT2` 20116   | `bpShipT2` 20117   | `bpLnchT2` 20118   |
+| 3          | `bpAmmoT3` 20126   | `bpShipT3` 20127   | `bpLnchT3` 20128   |
+| 4-5        | `bpAmmoT4_5` 20136 | `bpShipT4_5` 20137 | `bpLnchT4_5` 20138 |
+
+**Unique faction/ship plans:**
+
+| Plan             | ID    |
+|------------------|-------|
+| `bpCovertPlans`  | 20129 |
+| `bpCarrierPlans` | 20130 |
+| `bpSpecterPlans` | 20139 |
+| `bpArchPlans`    | 20140 |
+| `bpValkPlans`    | 20141 |
 
 ### `shipStats` (optional)
 
