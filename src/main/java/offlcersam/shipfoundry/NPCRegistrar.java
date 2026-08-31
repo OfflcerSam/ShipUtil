@@ -1,8 +1,6 @@
 package offlcersam.shipfoundry;
 
-import _database.NameDatabase;
 import game.world.SectorGenerator;
-import game.objects.SpaceShip;
 import illuminatus.core.tools.util.Random;
 import mods.ModLogger;
 
@@ -41,18 +39,6 @@ public final class NPCRegistrar {
     // Vanilla ticket count for spawnTempPoliceMob(): rngSelection(20,20,20,19) is a
     // 4-entry pool (3 tickets ship 20, 1 ticket ship 19). Used for temp/escort police groups.
     private static final int VANILLA_TEMP_POLICE_POOL_SIZE = 4;
-
-    // bucket 0-4, where 4 means "tier 4 or higher", matches Utils.constrain(0,tier,5) collapsing
-    // tiers 4 and 5 into the same default case in both spawnRogueDrones and spawnTempRogueDrones.
-    // private static final Map<Integer, List<Integer>> ROGUE_DRONE_POOL = new HashMap<>();
-
-    // Custom ship base ID to the gear preset it should use, since vanilla's configRogueDrone()
-    // keys entirely off the literal ship id and falls back to tier-0 gear for anything else.
-    // private static final Map<Integer, RogueDroneGear> ROGUE_DRONE_GEAR = new HashMap<>();
-
-    // Range sizes (highestShipIndex - lowestShipIndex + 1) per bucket, counted from both spawnRogueDrones and spawnTempRogueDrones (they use identical range tables).
-    // bucket: 0, 1, 2, 3, 4+
-    // private static final int[] VANILLA_ROGUE_DRONE_POOL_SIZE = { 4, 4, 5, 5, 5 };
 
     private static final ThreadLocal<Integer> STASHED_TIER = ThreadLocal.withInitial(() -> 0);
 

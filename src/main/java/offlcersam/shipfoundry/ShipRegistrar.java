@@ -113,6 +113,14 @@ public final class ShipRegistrar {
         int hullType = def.isStation() ? HULL_TYPE_STATION : def.isPlatform() ? HULL_TYPE_PLATFORM : HULL_TYPE_SHIP;
         HULL_TYPE_OVERRIDES.put(def.id(), hullType);
 
+        if (hullType != HULL_TYPE_SHIP) {
+            ModLogger.log(
+                    "[ShipFoundry] Registered ship " + def.name()
+                            + " as a " + (hullType == HULL_TYPE_STATION ? "station" : "platform")
+                            + " - if this is the intent all is fine."
+            );
+        }
+
         if (!def.shipStats().isEmpty()) {
             List<StatBonus> statBonuses = new ArrayList<>();
             for (ShipDefinition.ShipStat shipStat : def.shipStats()) {
@@ -120,10 +128,12 @@ public final class ShipRegistrar {
                 statBonuses.add(new StatBonus(stat, shipStat.flat(), shipStat.percent()));
             }
             SHIP_STATS.put(def.id(), List.copyOf(statBonuses));
+            ModLogger.log("[ShipFoundry] Registered " + statBonuses.size() + " shipStats bonus(es) for ship " + def.name());
         }
 
         if (!def.builtInDevices().isEmpty()) {
             BUILT_IN_DEVICES.put(def.id(), def.builtInDevices());
+            ModLogger.log("[ShipFoundry] Registered " + def.builtInDevices().size() + " built-in device(s) for ship " + def.name());
         }
 
         ShipList.write(
@@ -188,6 +198,7 @@ public final class ShipRegistrar {
 
         if (!registration.uniqueLoot().isEmpty()) {
             UNIQUE_LOOT.put(def.id(), registration.uniqueLoot());
+            ModLogger.log("[ShipFoundry] Registered " + registration.uniqueLoot().size() + " unique loot drop(s) for ship " + def.name());
         }
     }
 
