@@ -67,7 +67,12 @@ Example that is included in repo:
       { "sectorTier": 0, "weight": 1 }
     ],
 
-    "police": { "weight": 1 }
+    "police": { "weight": 1 },
+
+    "uniqueLoot": [
+      { "id": 20139, "amount": 1, "chance": 100 },
+      { "id": 10911, "amount": 1, "chance": 25 }
+    ]
   },
 
   "recipe": {
@@ -115,12 +120,15 @@ Example that is included in repo:
 Controls whether the ship shows up anywhere beyond just existing as a usable ship. Any sub-section left out simply isn't registered.
 A ship with no `"registration"` at all is loadable/usable but doesn't load to markets, NPC spawns, and crafting.
 
-| Field    | Type    | Notes                                                                                                                                                                                                                                                                                                                                                                                                                  |
-|----------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `market` | boolean | Optional, defaults to `false`. If `true`, the ship is listed for buy/sell at any market matching station index 501 or 511, which are vanilla shipyards. (`MarketList`'s `shipyard.addStationIndices(501, 511)`)                                                                                                                                                                                                        |
-| `npc`    | array   | Optional. Each entry is `{ "tier": #, "weight": # }`. Registers the ship as a candidate normal NPC spawn for that tier (0-5). `weight` is "tickets" relative to *one* vanilla-roll ticket for that tier - weight 1 makes it roughly as common as a single vanilla ship in that tier's pool, weight 2 about twice as likely, etc. A ship can appear in multiple tiers by listing multiple entries. Minimum weight is 1. |
-| `boss`   | array   | Optional. Each entry is `{ "sectorTier": #, "weight": # }`. Same weighting rule as `npc`, but for boss spawns in that sector tier (0-6, where 6 covers "6 or higher").                                                                                                                                                                                                                                                 |
-| `police` | object  | Optional. `{ "weight": # }`. Registers the ship as a candidate for both single police spawns and grouped temp/escort police spawns. Not tiered as police spawns are not tier gated. Minimum weight is 1.                                                                                                                                                                                                               |
+| Field        | Type    | Notes                                                                                                                                                                                                                                                                                                                                                                                                                  |
+|--------------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `market`     | boolean | Optional, defaults to `false`. If `true`, the ship is listed for buy/sell at any market matching station index 501 or 511, which are vanilla shipyards. (`MarketList`'s `shipyard.addStationIndices(501, 511)`)                                                                                                                                                                                                        |
+| `npc`        | array   | Optional. Each entry is `{ "tier": #, "weight": # }`. Registers the ship as a candidate normal NPC spawn for that tier (0-5). `weight` is "tickets" relative to *one* vanilla-roll ticket for that tier - weight 1 makes it roughly as common as a single vanilla ship in that tier's pool, weight 2 about twice as likely, etc. A ship can appear in multiple tiers by listing multiple entries. Minimum weight is 1. |
+| `boss`       | array   | Optional. Each entry is `{ "sectorTier": #, "weight": # }`. Same weighting rule as `npc`, but for boss spawns in that sector tier (0-6, where 6 covers "6 or higher").                                                                                                                                                                                                                                                 |
+| `police`     | object  | Optional. `{ "weight": # }`. Registers the ship as a candidate for both single police spawns and grouped temp/escort police spawns. Not tiered as police spawns are not tier gated. Minimum weight is 1.                                                                                                                                                                                                               |
+| `uniqueLoot` | array   | Optional. Each entry is `{ "id": #, "amount": #, "chance": # }`. Extra item(s) this ship can drop when destroyed as an NPC/boss, **on top of** whatever generic loot it would already drop. `amount` defaults to `1`, `chance` is a plain 0-100 percentage defaulting to `100` (always drops).                                                                                                                         |
+
+`uniqueLoot` requires the item's ID like shown in recipe.
 
 ### `recipe` (optional)
 
@@ -269,7 +277,7 @@ automatically during loading, so drop-in-a-folder works for sprites as well inst
 ## Setup
 
 `ships/ShipSample/arrowhead.json` recreates ShipTest's original Arrowhead as JSON, using id `1000` and exercising every optional section above:
-market listing, tier-0 NPC spawn, a sector-tier-0 boss spawn, a police spawn, its original crafting recipe, a couple of `shipStats` bonuses, and an inbuilt Booster device. `ship_base_1000.png` sits alongside it as the matching sprite.
+market listing, tier-0 NPC spawn, a sector-tier-0 boss spawn, a police spawn, a couple of unique loot drops, its original crafting recipe, a couple of `shipStats` bonuses, and an inbuilt Booster device. `ship_base_1000.png` sits alongside it as the matching sprite.
 
 Copy the `ShipSample` folder to `<gameDirectory>/ships/` to try it. If ships folder doesn't exist create it.
 

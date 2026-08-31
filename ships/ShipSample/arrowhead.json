@@ -3,7 +3,7 @@
   "icon": 30,
   "color": "AZURE",
   "name": "Arrowhead",
-  "description": "Maybe one day you could be a real arrow.",
+  "description": "Maybe one day you could be a real arrow. Inbuilt: Boostyer",
   "tier": 0,
   "rarity": "UNCOMMON",
   "renderIndex": 1000,
@@ -46,7 +46,20 @@
       { "sectorTier": 0, "weight": 1 }
     ],
 
-    "police": { "weight": 1 }
+    "police": { "weight": 1 },
+
+    "uniqueLoot": [
+      {
+        "id": 20141,
+        "amount": 1,
+        "chance": 100
+      },
+      {
+        "id": 20130,
+        "amount": 1,
+        "chance": 25
+      }
+    ]
   },
 
   "recipe": {
