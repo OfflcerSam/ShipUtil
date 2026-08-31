@@ -10,7 +10,7 @@ import java.util.List;
  */
 public record ShipDefinition(int id, int icon, String color, String name, String description, int tier, String rarity,
                              int renderIndex, int engineDisplacement, float hull, float cargo,
-                             List<TurretSlot> weaponLayout, int energySlots, int armorSlots, int shieldSlots,
+                             List<TurretSlot> weaponLayout, String vanillaWeaponLayout, int energySlots, int armorSlots, int shieldSlots,
                              int deviceSlots, int moduleSlots, int engineSlots,
                              Registration registration, Recipe recipe, List<ShipStat> shipStats, List<Integer> builtInDevices,
                              boolean isStation, boolean isPlatform) {
@@ -92,15 +92,22 @@ public record ShipDefinition(int id, int icon, String color, String name, String
         float hull = root.get("hull").asFloat();
         float cargo = root.get("cargo").asFloat();
 
+        JsonValue weaponLayoutValue = root.get("weaponLayout");
         List<TurretSlot> layout = new ArrayList<>();
-        for (JsonValue slot : root.getArray("weaponLayout")) {
-            double angle = slot.get("angle").asDouble();
-            double distance = slot.get("distance").asDouble();
-            layout.add(new TurretSlot(angle, distance));
-        }
+        String vanillaWeaponLayout = null;
 
-        if (layout.isEmpty()) {
-            throw new JsonValue.JsonException("weaponLayout must have at least one slot");
+        if (weaponLayoutValue.type() == JsonValue.Type.STRING) {
+            vanillaWeaponLayout = weaponLayoutValue.asString();
+        } else {
+            for (JsonValue slot : weaponLayoutValue.asArray()) {
+                double angle = slot.get("angle").asDouble();
+                double distance = slot.get("distance").asDouble();
+                layout.add(new TurretSlot(angle, distance));
+            }
+
+            if (layout.isEmpty()) {
+                throw new JsonValue.JsonException("weaponLayout must have at least one slot");
+            }
         }
 
         JsonValue slots = root.get("slots");
@@ -136,6 +143,7 @@ public record ShipDefinition(int id, int icon, String color, String name, String
                 hull,
                 cargo,
                 layout,
+                vanillaWeaponLayout,
                 energySlots,
                 armorSlots,
                 shieldSlots,

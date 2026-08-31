@@ -96,20 +96,23 @@ public final class ShipRegistrar {
      * ship has been written and ShipList has reloaded its ship stats.
      */
     public static void registerShip(ShipDefinition def) {
-        WeaponTurretPlacement placement = new WeaponTurretPlacement();
+        int weaponLayoutIndex;
 
-        for (ShipDefinition.TurretSlot slot : def.weaponLayout()) {
-            placement.addSlot(slot.angle(), slot.distance());
+        if (def.vanillaWeaponLayout() != null) {
+            weaponLayoutIndex = resolveVanillaWeaponLayout(def.vanillaWeaponLayout());
+        } else {
+            WeaponTurretPlacement placement = new WeaponTurretPlacement();
+
+            for (ShipDefinition.TurretSlot slot : def.weaponLayout()) {
+                placement.addSlot(slot.angle(), slot.distance());
+            }
+
+            weaponLayoutIndex = WeaponSlotLayoutList.layouts.add(placement);
         }
-
-        int weaponLayoutIndex = WeaponSlotLayoutList.layouts.add(placement);
 
         Color color = resolveConstant(Color.class, def.color(), "color");
         TypeTag rarity = resolveConstant(TypeTag.class, def.rarity(), "rarity");
 
-        // Always stored, even for a plain ship (10) - this is what lets ShipStatsMixin force the correct
-        // classification for every id this mod registers, regardless of which vanilla range that id numerically
-        // falls into. def.isStation()/isPlatform() are already validated mutually exclusive by ShipDefinition.
         int hullType = def.isStation() ? HULL_TYPE_STATION : def.isPlatform() ? HULL_TYPE_PLATFORM : HULL_TYPE_SHIP;
         HULL_TYPE_OVERRIDES.put(def.id(), hullType);
 
@@ -214,6 +217,22 @@ public final class ShipRegistrar {
                     "Unknown " + fieldLabel + " " + name
                             + " - check the exact constant name on "
                             + type.getName()
+            );
+        }
+    }
+
+    /**
+     * Resolves a vanilla WeaponSlotLayoutList constant name (e.g. "S_10_T") to the layout index it was assigned at WeaponSlotLayoutList.init().
+     * Case-insensitive, matching resolveConstant's convention.
+     */
+    private static int resolveVanillaWeaponLayout(String name) {
+        try {
+            return WeaponSlotLayoutList.class.getField(name.toUpperCase()).getInt(null);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalArgumentException(
+                    "Unknown vanilla weaponLayout \"" + name
+                            + "\" - check the exact constant name on " + WeaponSlotLayoutList.class.getName()
+                            + " (e.g. S_1_V .. S_10_V, S_7_T .. S_10_T)"
             );
         }
     }
