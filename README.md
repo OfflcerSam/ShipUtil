@@ -121,23 +121,84 @@ Example that is included in repo:
 
 ### Base fields
 
-| Field                                                                | Type            | Notes                                                                                                                                                                                                                                                                                                    |
-|----------------------------------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `id`                                                                 | int             | Unique ship base ID, do not change this unless you plan on starting a new save. Must be unique across every loaded ship (including vanilla's own - see [Reserved vanilla ship IDs](#Reserved-vanilla-base-ship-IDs)) and stay under 2000, since `ShipList.loadShipStatsFromItems` only scans ids 0-1999. |
-| `icon`                                                               | int             | Vanilla sprite-sheet icon index.                                                                                                                                                                                                                                                                         |
-| `color`                                                              | string          | Name of a `Color` constant (case-insensitive). See [Color constants](#color-constants) for the full list.                                                                                                                                                                                                |
-| `name`                                                               | string          | Display name.                                                                                                                                                                                                                                                                                            |
-| `description`                                                        | string          | Display description. Optional, defaults to `""`.                                                                                                                                                                                                                                                         |
-| `tier`                                                               | int             | Affects usable level.                                                                                                                                                                                                                                                                                    |
-| `rarity`                                                             | string          | Name of a `TypeTag` constant (case-insensitive): `NONE`, `JUNK`, `COMMON`, `UNCOMMON`, `RARE`, `EXOTIC`, `LEGENDARY`, `PLATFORM`, `STATION`.                                                                                                                                                             |
-| `renderIndex`                                                        | int             | Ship sprite index, should match the ship_base_####. Current cap is 2000.                                                                                                                                                                                                                                 |
-| `engineDisplacement`                                                 | int             | Engine position glow, in pixels from center. Optional, defaults to `0`.                                                                                                                                                                                                                                  |
-| `hull`                                                               | float           | Hull HP, decompile ShipList for reference.                                                                                                                                                                                                                                                               |
-| `cargo`                                                              | float           | Cargo capacity, decompile ShipList for reference.                                                                                                                                                                                                                                                        |
-| `weaponLayout`                                                       | array or string | Either an array of `{ "angle": ##, "distance": ## }` turret slots in order (vanilla goes up to 10 slots), or a string naming one of vanilla's own built-in layouts by its `WeaponSlotLayoutList` constant name.                                                                                          |
-| `slots.energy` / `armor` / `shield` / `device` / `module` / `engine` | int             | Slot counts. Any omitted default to `0`. Vanilla doesn't currently exceed 9 in any category.                                                                                                                                                                                                             |
+| Field                                                                | Type            | Notes                                                                                                                                        |
+|----------------------------------------------------------------------|-----------------|----------------------------------------------------------------------------------------------------------------------------------------------|
+| `id`                                                                 | int             | Unique ship base ID. See [`id`](#id) below.                                                                                                  |
+| `icon`                                                               | int             | Spritesheet icon index. See [`icon`](#icon) below.                                                                                           |
+| `color`                                                              | string          | Name of a `Color` constant (case-insensitive). See [Color constants](#color-constants) for the full list.                                    |
+| `name`                                                               | string          | Display name.                                                                                                                                |
+| `description`                                                        | string          | Display description. Optional, defaults to `""`. See [`description`](#description) below.                                                    |
+| `tier`                                                               | int             | Affects usable level and stat scaling. See [`tier`](#tier) below.                                                                            |
+| `rarity`                                                             | string          | Name of a `TypeTag` constant (case-insensitive): `NONE`, `JUNK`, `COMMON`, `UNCOMMON`, `RARE`, `EXOTIC`, `LEGENDARY`, `PLATFORM`, `STATION`. |
+| `renderIndex`                                                        | int             | Ship sprite index. See [`renderIndex`](#renderindex) below.                                                                                  |
+| `engineDisplacement`                                                 | int             | Engine position glow, in pixels from center. Purely cosmetic. Optional, defaults to `0`.                                                     |
+| `hull`                                                               | float           | Hull HP. See [`hull` / `cargo`](#hull--cargo) below.                                                                                         |
+| `cargo`                                                              | float           | Cargo capacity. See [`hull` / `cargo`](#hull--cargo) below.                                                                                  |
+| `weaponLayout`                                                       | array or string | Custom turret slots or a vanilla layout name. See [`weaponLayout`](#weaponlayout) below.                                                     |
+| `slots.energy` / `armor` / `shield` / `device` / `module` / `engine` | int             | Slot counts. Any omitted default to `0`. Vanilla doesn't currently exceed 9 in any category. See [`slots`](#slots) below.                    |
 
-### `weaponLayout`
+### `id`
+
+Do not change this once a save has ships of that id in it, unless you plan on starting a new save.
+If the IDs do not match it will stop resolving to the right ship and be null. Must be unique across every loaded ship, including vanilla's own.
+(see[Reserved vanilla ship IDs](#Reserved-vanilla-base-ship-IDs)), and stay under 2000, since`ShipList.loadShipStatsFromItems` only scans ids 0-1999.
+
+### `icon`
+
+This is a 32x32 cell index into a single shared spritesheet (`items/items.png`, 1024x1024 = a 32x32 grid of every item icon in the game.)
+The index maps to a cell via:
+
+```java
+iconTextureX = (iconNumber * 32) % 1024;
+iconTextureY = (iconNumber * 32) / 1024 * 32;
+```
+i.e. `column = iconNumber % 32`, `row = iconNumber / 32`, reading left-to-right then top-to-bottom, same as a normal grid.
+
+**Icon choice generally tracks ship tier in practice.**
+Here are some common Icon numbers and their tier usage:
+
+### `description`
+
+Whatever you type here gets more appended to it automatically.
+See [`shipStats`](#shipstats-optional) for the auto-generated "Improves: ..." line, and note that any"Inbuilt: X" label 
+you see on vanilla ships (e.g. Tyrannos's "Inbuilt: Offensive Overclock") is just plain text that you must write.
+So as said, if you want that phrasing for a [built-in device](#builtindevices-optional), type it into your own description the same way.
+
+### `tier`
+
+Besides scaling `hull`/`cargo` (see below), tier sets the level requirement shown as "LvLxx is required for use".
+`Item.levelRequirement = tier * 10`, applied to every item type, not ship-specific. Tier 0 needs no level, tier 3 needs level 30, and so on. 
+It also feeds into `ShipList.getPrice()` indirectly through the scaled `hull`/`cargo` values (see the credit price formula under [`slots`](#slots) below).
+
+### `renderIndex`
+
+Controls which ship sprite gets used. See [Ship textures](#ship-textures) below for how a PNG dropped next to the  ship's JSON gets matched to this automatically.
+While it's independent of `id`, I recommend making your ships the same number. Vanilla uses up to ``ship_base_259``.
+
+### `hull` / `cargo`
+
+**These are not the final in-game numbers. Both get run through a per-tier multiplier the moment the ship registers:**
+
+```java
+baseHullintegrity = round(baseHullintegrity * TIER_HULL[tier] / 10) * 10;
+baseCargoSpace = round(baseCargoSpace * TIER_CARGO[tier] / 10) * 10;
+```
+
+| Tier         | 0   | 1    | 2   | 3    | 4   | 5    | 6    | 7    |
+|--------------|-----|------|-----|------|-----|------|------|------|
+| `TIER_HULL`  | 1.0 | 2.0  | 3.0 | 4.0  | 5.0 | 6.75 | 7.75 | 8.75 |
+| `TIER_CARGO` | 2.0 | 3.25 | 4.5 | 5.75 | 7.0 | 9.5  | 11.0 | 12.5 |
+
+Hull displays as that scaled/rounded number directly. Cargo goes through one more step for its tooltip text.
+`GameUtil.volumeDisplay()` multiplies it by another 10 (an internal-units-to-Liters conversion) and switches to `k` notation above 999.
+
+**Worked example** - Arrowhead's own JSON (`hull: 300.0`, `cargo: 61.875`, `tier: 0`):
+- Hull: `round(300.0 * 1.0 / 10) * 10` = **300** then shown as Hull: 300.
+- Cargo: `round(61.875 * 2.0 / 10) * 10` = **120** stored then `120 * 10` = 1200 for display then shown as `Cargo 1.2kL`
+
+If you want a *specific* final displayed number, work backwards from the tier's multiplier rather than assuming the JSON value is what shows up as-is.
+
+### `weaponLayout / weapon slots`
 
 Either an array of custom turret slots, or a string naming one of vanilla's own built-in layouts to reuse directly.
 
@@ -165,28 +226,16 @@ Either an array of custom turret slots, or a string naming one of vanilla's own 
 
 **DO NOT** change the weaponLayout between Vanilla and Custom, or alter weaponLayout mid-playthrough it will cause the ship to turn into a null item.
 
-### `hull` / `cargo`
+### `slots`
 
-**These are not the final in-game numbers. Both get run through a per-tier multiplier the moment the ship registers:**
+Straightforward slot counts (`energy`/`armor`/`shield`/`device`/`module`/`engine`), each optional and defaulting to `0`.
+
+Note: `ShipList.getPrice()` computes credit value from `hull`, `cargo`, and these slot counts:
 
 ```java
-baseHullintegrity = round(baseHullintegrity * TIER_HULL[tier] / 10) * 10;
-baseCargoSpace = round(baseCargoSpace * TIER_CARGO[tier] / 10) * 10;
+price = 25*hull^1.5 + 50*cargo^1.5 + 5500*weaponSlots^3 + 5000*energySlots^3 + 5000*armorSlots^3 + 5000*shieldSlots^3 + 4500*deviceSlots^3 + 4500*moduleSlots^3 + 5500*engineSlots^4
 ```
-
-| Tier         | 0   | 1    | 2   | 3    | 4   | 5    | 6    | 7    |
-|--------------|-----|------|-----|------|-----|------|------|------|
-| `TIER_HULL`  | 1.0 | 2.0  | 3.0 | 4.0  | 5.0 | 6.75 | 7.75 | 8.75 |
-| `TIER_CARGO` | 2.0 | 3.25 | 4.5 | 5.75 | 7.0 | 9.5  | 11.0 | 12.5 |
-
-Hull displays as that scaled/rounded number directly. Cargo goes through one more step for its tooltip text.
-`GameUtil.volumeDisplay()` multiplies it by another 10 (an internal-units-to-Liters conversion) and switches to `k` notation above 999.
-
-**Worked example** - Arrowhead's own JSON (`hull: 300.0`, `cargo: 61.875`, `tier: 0`):
-- Hull: `round(300.0 * 1.0 / 10) * 10` = **300** then shown as Hull: 300.
-- Cargo: `round(61.875 * 2.0 / 10) * 10` = **120** stored then `120 * 10` = 1200 for display then shown as `Cargo 1.2kL`
-
-If you want a *specific* final displayed number, work backwards from the tier's multiplier rather than assuming the JSON value is what shows up as-is.
+So as you can see price can skyrocket if left to be automatic. Crafting recipes will override this automatic price.
 
 ### `registration` (optional)
 
