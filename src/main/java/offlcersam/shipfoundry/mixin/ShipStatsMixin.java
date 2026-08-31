@@ -8,11 +8,12 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = ShipStats.class, remap = false)
-public abstract class ShipStatsMixin extends ShipStats {
+public class ShipStatsMixin {
 
     @Inject(method = "determineHullObjectType", at = @At("HEAD"), cancellable = true)
     private void shipfoundry$overrideHullObjectType(CallbackInfoReturnable<Integer> cir) {
-        Integer override = ShipRegistrar.getHullTypeOverride(this.shipSpawnIndex);
+        ShipStats self = (ShipStats) (Object) this;
+        Integer override = ShipRegistrar.getHullTypeOverride(self.shipSpawnIndex);
 
         if (override != null) {
             cir.setReturnValue(override);
