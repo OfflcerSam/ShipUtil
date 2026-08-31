@@ -83,7 +83,7 @@ Example that is included in repo:
 
 | Field                                                                | Type   | Notes                                                                                                                                                                                                                                       |
 |----------------------------------------------------------------------|--------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `id`                                                                 | int    | Unique ship base ID. Must stay under 2000. `ShipList.loadShipStatsFromItems` only scans ids 0-1999, so 2000 up is broken. See [Reserved vanilla ship IDs](#reserved-vanilla-ship-ids) for which low ids to avoid.                           |
+| `id`                                                                 | int    | Unique ship base ID, do not change this unless you plan on starting a new save. Must stay under 1999 due to coding restrictions. See [Reserved vanilla ship IDs](#reserved-vanilla-ship-ids) for which low ids to avoid.                    |
 | `icon`                                                               | int    | Vanilla sprite-sheet icon index.                                                                                                                                                                                                            |
 | `color`                                                              | string | Name of a `Color` constant (case-insensitive). See [Color constants](#color-constants) for the full list.                                                                                                                                   |
 | `name`                                                               | string | Display name.                                                                                                                                                                                                                               |
@@ -151,6 +151,8 @@ LT_VIOLET, VIOLET, DK_VIOLET, LAVENDER, LT_LAVENDER, PURPLE, LT_PURPLE, DK_PURPL
 ```
 
 ## Reserved vanilla base ship IDs
+
+Vanilla IDs will most likely win, do not try to overwrite them.
 
 ```
 write(): 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 35, 36, 37, 38, 39, 45,
