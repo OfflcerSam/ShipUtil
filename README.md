@@ -110,27 +110,30 @@ Example that is included in repo:
     { "stat": "PLATFORM_SLOT", "flat": 1.0 }
   ],
 
-  "builtInDevices": [ 960 ]
+  "builtInDevices": [ 960 ],
+
+  "isStation": false,
+  "isPlatform": false
 }
 ```
 
 ### Base fields
 
-| Field                                                                | Type   | Notes                                                                                                                                                                                                                                       |
-|----------------------------------------------------------------------|--------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `id`                                                                 | int    | Unique ship base ID, do not change this unless you plan on starting a new save. Must stay under 1999 due to coding restrictions. See [Reserved vanilla ship IDs](#Reserved-vanilla-base-ship-IDs) for which low ids to avoid.               |
-| `icon`                                                               | int    | Vanilla sprite-sheet icon index.                                                                                                                                                                                                            |
-| `color`                                                              | string | Name of a `Color` constant (case-insensitive). See [Color constants](#color-constants) for the full list.                                                                                                                                   |
-| `name`                                                               | string | Display name.                                                                                                                                                                                                                               |
-| `description`                                                        | string | Display description. Optional, defaults to `""`.                                                                                                                                                                                            |
-| `tier`                                                               | int    | Affects usable level.                                                                                                                                                                                                                       |
-| `rarity`                                                             | string | Name of a `TypeTag` constant (case-insensitive): `NONE`, `JUNK`, `COMMON`, `UNCOMMON`, `RARE`, `EXOTIC`, `LEGENDARY`, `PLATFORM`, `STATION`.                                                                                                |
-| `renderIndex`                                                        | int    | Ship sprite index, should match the ship_base_####. Current cap is 2000.                                                                                                                                                                    |
-| `engineDisplacement`                                                 | int    | Engine position glow, in pixels from center. Optional, defaults to `0`.                                                                                                                                                                     |
-| `hull`                                                               | float  | Hull HP, decompile ShipList for reference.                                                                                                                                                                                                  |
-| `cargo`                                                              | float  | Cargo capacity, decompile ShipList for reference.                                                                                                                                                                                           |
-| `weaponLayout`                                                       | array  | `{ "angle": ##, "distance": ## }` per turret slots, in that order. (Vanilla goes up to 10) Each entry is a turret slot, there is currently no way to reuse a built-in vanilla layout by name - see [Known limitations](#known-limitations). |
-| `slots.energy` / `armor` / `shield` / `device` / `module` / `engine` | int    | Slot counts. Any omitted default to `0`. Vanilla doesn't currently exceed 9 in any category.                                                                                                                                                |
+| Field                                                                | Type   | Notes                                                                                                                                                                                                                                                                                                    |
+|----------------------------------------------------------------------|--------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `id`                                                                 | int    | Unique ship base ID, do not change this unless you plan on starting a new save. Must be unique across every loaded ship (including vanilla's own - see [Reserved vanilla ship IDs](#Reserved-vanilla-base-ship-IDs)) and stay under 2000, since `ShipList.loadShipStatsFromItems` only scans ids 0-1999. |
+| `icon`                                                               | int    | Vanilla sprite-sheet icon index.                                                                                                                                                                                                                                                                         |
+| `color`                                                              | string | Name of a `Color` constant (case-insensitive). See [Color constants](#color-constants) for the full list.                                                                                                                                                                                                |
+| `name`                                                               | string | Display name.                                                                                                                                                                                                                                                                                            |
+| `description`                                                        | string | Display description. Optional, defaults to `""`.                                                                                                                                                                                                                                                         |
+| `tier`                                                               | int    | Affects usable level.                                                                                                                                                                                                                                                                                    |
+| `rarity`                                                             | string | Name of a `TypeTag` constant (case-insensitive): `NONE`, `JUNK`, `COMMON`, `UNCOMMON`, `RARE`, `EXOTIC`, `LEGENDARY`, `PLATFORM`, `STATION`.                                                                                                                                                             |
+| `renderIndex`                                                        | int    | Ship sprite index, should match the ship_base_####. Current cap is 2000.                                                                                                                                                                                                                                 |
+| `engineDisplacement`                                                 | int    | Engine position glow, in pixels from center. Optional, defaults to `0`.                                                                                                                                                                                                                                  |
+| `hull`                                                               | float  | Hull HP, decompile ShipList for reference.                                                                                                                                                                                                                                                               |
+| `cargo`                                                              | float  | Cargo capacity, decompile ShipList for reference.                                                                                                                                                                                                                                                        |
+| `weaponLayout`                                                       | array  | `{ "angle": ##, "distance": ## }` per turret slots, in that order. (Vanilla goes up to 10) Each entry is a turret slot, there is currently no way to reuse a built-in vanilla layout by name - see [Known limitations](#known-limitations).                                                              |
+| `slots.energy` / `armor` / `shield` / `device` / `module` / `engine` | int    | Slot counts. Any omitted default to `0`. Vanilla doesn't currently exceed 9 in any category.                                                                                                                                                                                                             |
 
 ### `registration` (optional)
 
@@ -276,6 +279,16 @@ into your own `"description"` field yourself, same as vanilla does.
 | `970` `971` `972` `973` | `hasOffLevel1` - `hasOffLevel4`                                            | Offensive Coprocessor tiers 1-4. |
 | `980` `981` `982` `983` | `hasDefLevel1` - `hasDefLevel4`                                            | Defensive Coprocessor tiers 1-4. |
 
+### `isStation` / `isPlatform` (optional)
+
+Both default to `false` (a normal ship) and can't both be `true` on the same ship. Vanilla itself decides whether a ship is a normal ship, station, or platform
+purely by which numeric bracket its id falls into (`game.shiputils.ShipStats#determineHullObjectType`, where below 500 is a ship, 500-599 is a station, 600+ is a platform).
+`NPCPilot` checks that before running any movement logic, and what `SpaceShipDrawer` uses to pick which draw path to use (including weapon slot positioning).
+
+`ShipStatsMixin` overrides that check for every ship this mod registers, using these two flags directly instead of the ship's id.
+So the id you pick has no effect on whether it moves and renders like a ship, station, or platform.
+Leave both `false` for a normal ship regardless of what id you gave it.
+
 ## Color constants
 
 Any of these (case-insensitive) work for the `color` field, taken from `illuminatus.core.graphics.Color`:
@@ -294,7 +307,7 @@ LT_VIOLET, VIOLET, DK_VIOLET, LAVENDER, LT_LAVENDER, PURPLE, LT_PURPLE, DK_PURPL
 
 ## Reserved vanilla base ship IDs
 
-Vanilla IDs will most likely win, do not try to overwrite them.
+Vanilla IDs will most likely win, do not try to overwrite them. This is purely about avoiding id collisions with  real vanilla ships.
 
 Available IDs 1,699.
 

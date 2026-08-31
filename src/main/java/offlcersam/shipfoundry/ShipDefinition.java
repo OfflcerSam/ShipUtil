@@ -12,7 +12,8 @@ public record ShipDefinition(int id, int icon, String color, String name, String
                              int renderIndex, int engineDisplacement, float hull, float cargo,
                              List<TurretSlot> weaponLayout, int energySlots, int armorSlots, int shieldSlots,
                              int deviceSlots, int moduleSlots, int engineSlots,
-                             Registration registration, Recipe recipe, List<ShipStat> shipStats, List<Integer> builtInDevices) {
+                             Registration registration, Recipe recipe, List<ShipStat> shipStats, List<Integer> builtInDevices,
+                             boolean isStation, boolean isPlatform) {
 
     public record TurretSlot(double angle, double distance) {
     }
@@ -115,6 +116,13 @@ public record ShipDefinition(int id, int icon, String color, String name, String
         List<ShipStat> shipStats = parseShipStats(root);
         List<Integer> builtInDevices = parseBuiltInDevices(root);
 
+        boolean isStation = root.getBoolean("isStation", false);
+        boolean isPlatform = root.getBoolean("isPlatform", false);
+
+        if (isStation && isPlatform) {
+            throw new JsonValue.JsonException("a ship cannot have both \"isStation\" and \"isPlatform\" set to true");
+        }
+
         return new ShipDefinition(
                 id,
                 icon,
@@ -137,7 +145,9 @@ public record ShipDefinition(int id, int icon, String color, String name, String
                 registration,
                 recipe,
                 shipStats,
-                builtInDevices
+                builtInDevices,
+                isStation,
+                isPlatform
         );
     }
 

@@ -37,6 +37,18 @@ public final class ShipRegistrar {
     /** Per-ship id -> extra items it can drop when destroyed as an NPC/boss, on top of the normal generic loot. */
     private static final Map<Integer, List<ShipDefinition.UniqueLootDrop>> UNIQUE_LOOT = new HashMap<>();
 
+    /**
+     * Per-ship id -> forced hull object type (8 station / 9 platform / 10 normal ship, matching
+     * game.shiputils.ShipStats's own type constants). Populated for every ship this mod registers, so a JSON
+     * ship's classification always matches its "isStation"/"isPlatform" flags directly instead of depending on
+     * which numeric bracket its id happens to land in - see ShipStatsMixin.
+     */
+    private static final Map<Integer, Integer> HULL_TYPE_OVERRIDES = new HashMap<>();
+
+    private static final int HULL_TYPE_STATION = 8;
+    private static final int HULL_TYPE_PLATFORM = 9;
+    private static final int HULL_TYPE_SHIP = 10;
+
     /** A single resolved Stat.flatVal()/percentVal() call to make whenever the owning ship recompiles. */
     public record StatBonus(Stat stat, Float flat, Float percent) {
     }
@@ -94,6 +106,12 @@ public final class ShipRegistrar {
 
         Color color = resolveConstant(Color.class, def.color(), "color");
         TypeTag rarity = resolveConstant(TypeTag.class, def.rarity(), "rarity");
+
+        // Always stored, even for a plain ship (10) - this is what lets ShipStatsMixin force the correct
+        // classification for every id this mod registers, regardless of which vanilla range that id numerically
+        // falls into. def.isStation()/isPlatform() are already validated mutually exclusive by ShipDefinition.
+        int hullType = def.isStation() ? HULL_TYPE_STATION : def.isPlatform() ? HULL_TYPE_PLATFORM : HULL_TYPE_SHIP;
+        HULL_TYPE_OVERRIDES.put(def.id(), hullType);
 
         if (!def.shipStats().isEmpty()) {
             List<StatBonus> statBonuses = new ArrayList<>();
@@ -212,5 +230,10 @@ public final class ShipRegistrar {
     /** Returns the extra unique loot drops for a ship id, or an empty list if it has none. */
     public static List<ShipDefinition.UniqueLootDrop> getUniqueLoot(int shipBaseId) {
         return UNIQUE_LOOT.getOrDefault(shipBaseId, List.of());
+    }
+
+    /** Returns the forced hull object type for a ship id this mod registered, or null if it's not one of ours. */
+    public static Integer getHullTypeOverride(int shipBaseId) {
+        return HULL_TYPE_OVERRIDES.get(shipBaseId);
     }
 }

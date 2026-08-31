@@ -11,7 +11,8 @@
     "PlayerMixin",
     "ShipListMixin",
     "UniqueDeviceUpdaterMixin",
-    "UniqueNPCDropsMixin"
+    "UniqueNPCDropsMixin",
+    "ShipStatsMixin"
   ],
   "injectors": {
     "defaultRequire": 1

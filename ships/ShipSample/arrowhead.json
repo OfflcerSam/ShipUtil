@@ -80,5 +80,8 @@
     { "stat": "PLATFORM_SLOT", "flat": 1.0 }
   ],
 
-  "builtInDevices": [ 960 ]
+  "builtInDevices": [ 960 ],
+
+  "isStation": false,
+  "isPlatform": false
 }
