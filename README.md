@@ -99,7 +99,7 @@ include either section for that reason - fill in your own once you've confirmed 
 
 | Field                                                                | Type   | Notes                                                                                                                                                                                                                                       |
 |----------------------------------------------------------------------|--------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `id`                                                                 | int    | Unique ship base ID, do not change this unless you plan on starting a new save. Must stay under 1999 due to coding restrictions. See [Reserved vanilla ship IDs](#reserved-vanilla-ship-ids) for which low ids to avoid.                    |
+| `id`                                                                 | int    | Unique ship base ID, do not change this unless you plan on starting a new save. Must stay under 1999 due to coding restrictions. See [Reserved vanilla ship IDs](#Reserved-vanilla-base-ship-IDs) for which low ids to avoid.               |
 | `icon`                                                               | int    | Vanilla sprite-sheet icon index.                                                                                                                                                                                                            |
 | `color`                                                              | string | Name of a `Color` constant (case-insensitive). See [Color constants](#color-constants) for the full list.                                                                                                                                   |
 | `name`                                                               | string | Display name.                                                                                                                                                                                                                               |
@@ -153,9 +153,9 @@ bpCovertPlans = 20129; bpCarrierPlans = 20130; bpSpecterPlans = 20139; bpArchPla
 
 ### `shipStats` (optional)
 
-Gives the ship permanent stat bonuses, reapplied every time its stats recompile. This is the JSON equivalent of
-ShipTest's `ShipListMixin`, which hardcoded a per-ship-id `if` block mirroring the giant vanilla case switch in
-`items.lists.ShipList#compile(boolean, int)` - here it's driven generically off whatever's in the ship's JSON instead.
+Gives the ship permanent stat bonuses, reapplied every time its stats recompile. 
+This is the JSON equivalent of  ShipTest's `ShipListMixin`, which hardcoded a per-ship-id `if` block mirroring the giant 
+vanilla case switch in `items.lists.ShipList#compile(boolean, int)` - here it's driven generically off whatever's in the ship's JSON instead.
 
 Each entry is `{ "stat": "NAME", "flat": #, "percent": # }` - `stat` is the name of an `items.Stat` constant
 (case-sensitive, matched exactly as written below), and at least one of `flat`/`percent` must be present. A stat
