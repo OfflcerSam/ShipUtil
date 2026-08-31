@@ -161,6 +161,8 @@ Either an array of custom turret slots, or a string naming one of vanilla's own 
 | `S_6_V`  | `S_7_V` | `S_8_V` | `S_9_V`  | `S_10_V` |
 | `S_7_T`  | `S_8_T` | `S_9_T` | `S_10_T` |          |
 
+**DO NOT** change the weaponLayout between Vanilla and Custom, or alter weaponLayout mid-playthrough it will cause the ship to turn into a null item.
+
 ### `registration` (optional)
 
 Controls whether the ship shows up anywhere beyond just existing as a usable ship. Any sub-section left out simply isn't registered.
