@@ -21,11 +21,12 @@ public record ShipDefinition(int id, int icon, String color, String name, String
      * Optional registration settings for a ship.
      * Sections that are not present in the JSON are simply not registered.
      */
-    public record Registration(boolean market, List<NpcSpawn> npc, List<BossSpawn> boss, PoliceSpawn police) {
+    public record Registration(boolean market, List<NpcSpawn> npc, List<BossSpawn> boss, PoliceSpawn police,
+                               List<UniqueLootDrop> uniqueLoot) {
 
         // Returns an empty registration configuration.
         public static Registration empty() {
-            return new Registration(false, List.of(), List.of(), null);
+            return new Registration(false, List.of(), List.of(), null, List.of());
         }
     }
 
@@ -45,6 +46,12 @@ public record ShipDefinition(int id, int icon, String color, String name, String
      * Registers this ship as a police spawn.
      */
     public record PoliceSpawn(int weight) {
+    }
+
+    /**
+     * One extra item this ship can drop when destroyed as an NPC/boss, on top of whatever generic loot it would already drop.
+     */
+    public record UniqueLootDrop(int id, int amount, int chance) {
     }
 
     /**
@@ -191,11 +198,33 @@ public record ShipDefinition(int id, int icon, String color, String name, String
             police = new PoliceSpawn(weight);
         }
 
+        List<UniqueLootDrop> uniqueLoot = new ArrayList<>();
+
+        JsonValue uniqueLootValue = registrationValue.getOrNull("uniqueLoot");
+        if (uniqueLootValue != null && !uniqueLootValue.isNull()) {
+            for (JsonValue entry : uniqueLootValue.asArray()) {
+                int id = entry.get("id").asInt();
+                int amount = entry.getInt("amount", 1);
+                int chance = entry.getInt("chance", 100);
+
+                if (amount < 1) {
+                    throw new JsonValue.JsonException("uniqueLoot amount must be at least 1");
+                }
+
+                if (chance < 1 || chance > 100) {
+                    throw new JsonValue.JsonException("uniqueLoot chance must be between 1 and 100");
+                }
+
+                uniqueLoot.add(new UniqueLootDrop(id, amount, chance));
+            }
+        }
+
         return new Registration(
                 market,
                 List.copyOf(npc),
                 List.copyOf(boss),
-                police
+                police,
+                List.copyOf(uniqueLoot)
         );
     }
 

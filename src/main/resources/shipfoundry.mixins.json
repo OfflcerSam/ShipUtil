@@ -10,7 +10,8 @@
     "CraftingTableMixin",
     "PlayerMixin",
     "ShipListMixin",
-    "UniqueDeviceUpdaterMixin"
+    "UniqueDeviceUpdaterMixin",
+    "UniqueNPCDropsMixin"
   ],
   "injectors": {
     "defaultRequire": 1

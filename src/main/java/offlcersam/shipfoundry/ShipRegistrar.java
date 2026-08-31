@@ -34,6 +34,9 @@ public final class ShipRegistrar {
     /** Per-ship id -> device item ids to install into a free device slot every time that ship's stats compile. */
     private static final Map<Integer, List<Integer>> BUILT_IN_DEVICES = new HashMap<>();
 
+    /** Per-ship id -> extra items it can drop when destroyed as an NPC/boss, on top of the normal generic loot. */
+    private static final Map<Integer, List<ShipDefinition.UniqueLootDrop>> UNIQUE_LOOT = new HashMap<>();
+
     /** A single resolved Stat.flatVal()/percentVal() call to make whenever the owning ship recompiles. */
     public record StatBonus(Stat stat, Float flat, Float percent) {
     }
@@ -164,6 +167,10 @@ public final class ShipRegistrar {
                     registration.police().weight()
             );
         }
+
+        if (!registration.uniqueLoot().isEmpty()) {
+            UNIQUE_LOOT.put(def.id(), registration.uniqueLoot());
+        }
     }
 
     /**
@@ -200,5 +207,10 @@ public final class ShipRegistrar {
     /** Returns the built-in device item ids to apply for a ship id, or an empty list if it has none. */
     public static List<Integer> getBuiltInDevices(int shipBaseId) {
         return BUILT_IN_DEVICES.getOrDefault(shipBaseId, List.of());
+    }
+
+    /** Returns the extra unique loot drops for a ship id, or an empty list if it has none. */
+    public static List<ShipDefinition.UniqueLootDrop> getUniqueLoot(int shipBaseId) {
+        return UNIQUE_LOOT.getOrDefault(shipBaseId, List.of());
     }
 }
