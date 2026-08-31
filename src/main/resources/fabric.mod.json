@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "offlcersam_shipfoundry",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "name": "ShipForge",
   "description": "Loads ship definitions from JSON files under <gameDir>/ships/<modName>/, so ships can be made as json data instead of Java/Mixin code.",
   "environment": "*",

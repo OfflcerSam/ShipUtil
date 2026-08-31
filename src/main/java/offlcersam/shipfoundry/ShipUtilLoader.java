@@ -31,6 +31,19 @@ public final class ShipUtilLoader {
     private ShipUtilLoader() {
     }
 
+    /** Returns the base ids of every ship claimed by the given ships/ subfolder name (case-insensitive), or empty if none match. */
+    public static List<Integer> getShipIdsForModName(String modName) {
+        List<Integer> ids = new ArrayList<>();
+
+        for (Map.Entry<Integer, String> entry : CLAIMED_IDS.entrySet()) {
+            if (entry.getValue().equalsIgnoreCase(modName)) {
+                ids.add(entry.getKey());
+            }
+        }
+
+        return ids;
+    }
+
     public static void load() {
         if (loaded) {
             return;
