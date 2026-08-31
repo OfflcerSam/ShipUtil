@@ -4,12 +4,15 @@ import game.weapons.WeaponSlotLayoutList;
 import game.weapons.WeaponTurretPlacement;
 import illuminatus.core.graphics.Color;
 import items.ItemTypeConstantsInterface;
+import items.Stat;
 import items.TypeTag;
 import items.lists.ShipList;
 import mods.ModLogger;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * JSON ship registration.
@@ -24,6 +27,16 @@ public final class ShipRegistrar {
 
     /** Stores every successfully registered ship's full definition, for anything that needs more than just an id (e.g. recipes). */
     private static final List<ShipDefinition> LOADED_SHIPS = new ArrayList<>();
+
+    /** Per-ship id -> resolved Stat bonuses to reapply every time ShipList.compile() runs for that ship id. */
+    private static final Map<Integer, List<StatBonus>> SHIP_STATS = new HashMap<>();
+
+    /** Per-ship id -> device item ids to install into a free device slot every time that ship's stats compile. */
+    private static final Map<Integer, List<Integer>> BUILT_IN_DEVICES = new HashMap<>();
+
+    /** A single resolved Stat.flatVal()/percentVal() call to make whenever the owning ship recompiles. */
+    public record StatBonus(Stat stat, Float flat, Float percent) {
+    }
 
     private ShipRegistrar() {
     }
@@ -105,6 +118,15 @@ public final class ShipRegistrar {
             ModLogger.log("[ShipFoundry] Registered ship " + def.name() + " for market listings");
         }
 
+        if (!def.shipStats().isEmpty()) {
+            List<StatBonus> statBonuses = new ArrayList<>();
+            for (ShipDefinition.ShipStat shipStat : def.shipStats()) {
+                Stat stat = resolveConstant(Stat.class, shipStat.stat(), "shipStats.stat");
+                statBonuses.add(new StatBonus(stat, shipStat.flat(), shipStat.percent()));
+            }
+            SHIP_STATS.put(def.id(), List.copyOf(statBonuses));
+        }
+
         LOADED_SHIPS.add(def);
 
         ModLogger.log("[ShipFoundry] Registered ship " + def.name() + " (id: " + def.id() + ")");
@@ -165,4 +187,10 @@ public final class ShipRegistrar {
     public static List<ShipDefinition> getLoadedShips() {
         return List.copyOf(LOADED_SHIPS);
     }
+
+    /** Returns the resolved Stat bonuses to apply for a ship id, or an empty list if it has none. */
+    public static List<StatBonus> getShipStats(int shipBaseId) {
+        return SHIP_STATS.getOrDefault(shipBaseId, List.of());
+    }
+
 }

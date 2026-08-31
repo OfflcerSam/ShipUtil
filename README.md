@@ -1,7 +1,7 @@
 # ShipUtil / ShipFoundry
 
 A Fabric mod for Sector Space that loads ship definitions from JSON files, so a ship (and its market listing,
-spawn behavior, and crafting recipe) can be authored as data instead of Java/Mixin code.
+spawn behavior, crafting recipe, stat bonuses, and built-in devices) can be authored as data instead of Java/Mixin code.
 
 Requires my fork of SSFML: https://github.com/OfflcerSam/SectorSpaceFabricModLoader
 
@@ -79,9 +79,21 @@ Example that is included in repo:
       { "id": 10702, "amount": 6 },
       { "id": 10711, "amount": 8 }
     ]
-  }
+  },
+
+  "shipStats": [
+    { "stat": "ENERGY_BANK", "percent": 140.0 },
+    { "stat": "ENERGY_REGEN", "percent": 90.0 },
+    { "stat": "STATION_SLOT", "flat": 5.0 },
+    { "stat": "PLATFORM_SLOT", "flat": 1.0 }
+  ]
 }
 ```
+
+The `shipStats` and `builtInDevices` values above are illustrative, not from the Arrowhead itself - `shipStats` reuses
+the real bonus values ShipTest's original `ShipListMixin` gave to its Foundry ship (id 40), and `builtInDevices` is a
+placeholder id since I don't have a verified device item id to put there. Arrowhead's own JSON in this repo doesn't
+include either section for that reason - fill in your own once you've confirmed real ids for your use case.
 
 ### Base fields
 
@@ -138,6 +150,56 @@ bpEMT5_6 = 20132; bpFldT5_6 = 20133; bpBulkT5_6 = 20134; bpContT5_6 = 20135; bpA
 bpLnchT0_1 = 20108; bpLnchT2 = 20118; bpLnchT3 = 20128; bpLnchT4_5 = 20138; tabletA = 10817; tabletB = 10818;
 bpCovertPlans = 20129; bpCarrierPlans = 20130; bpSpecterPlans = 20139; bpArchPlans = 20140; bpValkPlans = 20141;
 ```
+
+### `shipStats` (optional)
+
+Gives the ship permanent stat bonuses, reapplied every time its stats recompile. This is the JSON equivalent of
+ShipTest's `ShipListMixin`, which hardcoded a per-ship-id `if` block mirroring the giant vanilla case switch in
+`items.lists.ShipList#compile(boolean, int)` - here it's driven generically off whatever's in the ship's JSON instead.
+
+Each entry is `{ "stat": "NAME", "flat": #, "percent": # }` - `stat` is the name of an `items.Stat` constant
+(case-sensitive, matched exactly as written below), and at least one of `flat`/`percent` must be present. A stat
+that doesn't support the one you gave it (see table) just logs a warning in-game and does nothing for that value.
+
+| Stat              | Flat | Percent | Notes                                                                                                                                              |
+|-------------------|------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------|
+| `WEAPON_DAMAGE`   | Yes  | Yes     | Weapon Damage.                                                                                                                                     |
+| `WEAPON_RANGE`    | Yes  | No      | Weapon Range.                                                                                                                                      |
+| `WEAPON_ROF`      | No   | Yes     | Weapon Rate of Fire.                                                                                                                               |
+| `WEAPON_ACCURACY` | No   | Yes     | Weapon Accuracy                                                                                                                                    |
+| `CRITICAL_CHANCE` | No   | Yes     | Critical Chance.                                                                                                                                   |
+| `CRITICAL_DAMAGE` | Yes  | Yes     | Critical Damage.                                                                                                                                   |
+| `CARGO_SPACE`     | Yes  | Yes     | Cargo Space.                                                                                                                                       |
+| `CLOAK_POWER`     | No   | Yes     | Only applies if the ship has a cloak installed.                                                                                                    |
+| `CLOAK_EVASION`   | No   | Yes     | Only applies if the ship has a cloak installed.                                                                                                    |
+| `JUMP_RANGE`      | Yes  | Yes     | Only applies if the ship has a jump drive.                                                                                                         |
+| `JUMP_CHARGE`     | Yes  | Yes     | Only applies if the ship has a jump drive.                                                                                                         |
+| `ENERGY_BANK`     | Yes  | Yes     | Max energy capacity.                                                                                                                               |
+| `ENERGY_REGEN`    | Yes  | Yes     | Energy Regen.                                                                                                                                      |
+| `SOLAR_REGEN`     | Yes  | Yes     | Only applies if the ship has solar regen already.                                                                                                  |
+| `SHIELD_BANK`     | Yes  | Yes     | Max shield strength.                                                                                                                               |
+| `SHIELD_REGEN`    | Yes  | Yes     | Shield Regen.                                                                                                                                      |
+| `SHIELD_RESIST`   | No   | Yes     | Shield Resist.                                                                                                                                     |
+| `SHIELD_SOAK`     | Yes  | No      | Shield Soak.                                                                                                                                       |
+| `ARMOR_INTEG`     | Yes  | Yes     | Max armor integrity.                                                                                                                               |
+| `ARMOR_REPAIR`    | Yes  | Yes     | Armor Regen.                                                                                                                                       |
+| `ARMOR_RESIST`    | No   | Yes     | Armor Resist.                                                                                                                                      |
+| `ARMOR_SOAK`      | Yes  | No      | Armor Soak.                                                                                                                                        |
+| `HULL_INTEG`      | Yes  | Yes     | Max hull integrity.                                                                                                                                |
+| `HULL_REPAIR`     | Yes  | Yes     | Hull Regen.                                                                                                                                        |
+| `HULL_RESIST`     | No   | Yes     | **Currently does nothing.** - `ShipList.compile()`'s case for this stat is an empty switch case in this game version, so setting it has no effect. |
+| `HULL_SOAK`       | Yes  | No      | **Currently does nothing.**, same reason as `HULL_RESIST`.                                                                                         |
+| `FIGHTER_BONUS`   | Yes  | No      | Fighter slot count.                                                                                                                                |
+| `MINING_POWER`    | Yes  | No      | Mining Power.                                                                                                                                      |
+| `MINING_DAMAGE`   | Yes  | No      | Mining Damage.                                                                                                                                     |
+| `PLATFORM_SLOT`   | Yes  | No      | Bonus deployable platform slots.                                                                                                                   |
+| `STATION_SLOT`    | Yes  | No      | Bonus deployable station slots.                                                                                                                    |
+| `MISSILE_BONUS`   | Yes  | No      | Missile salvo size.                                                                                                                                |
+
+### `builtInDevices` (optional)
+
+TODO
+
 ## Color constants
 
 Any of these (case-insensitive) work for the `color` field, taken from `illuminatus.core.graphics.Color`:
@@ -181,8 +243,8 @@ writeDrone(): 600, 601, 602, 603, 604, 606, 607, 608, 609, 611, 612, 613, 614, 6
 
 ## Ship textures
 
-`game.graphics.DeferedTextureLoader` resolves a ship's sprite as `entity/ship_base_<renderIndex>.png`, checked first as an external file relative to the game directory, and only falling back to a classpath-bundled resource (baked into  a mod jar at build time) if that's missing. 
-Since a JSON-only ship has no build-time resource, `ShipGraphicsLoader` copies `ship_base_<renderIndex>.png` from next to the ship's JSON into `<gameDirectory>/entity/` 
+`game.graphics.DeferedTextureLoader` resolves a ship's sprite as `entity/ship_base_<renderIndex>.png`, checked first as an external file relative to the game directory, and only falling back to a classpath-bundled resource (baked into  a mod jar at build time) if that's missing.
+Since a JSON-only ship has no build-time resource, `ShipGraphicsLoader` copies `ship_base_<renderIndex>.png` from next to the ship's JSON into `<gameDirectory>/entity/`
 automatically during loading, so drop-in-a-folder works for sprites as well instead of needing the user to make a compiled jar.
 
 ## Known limitations

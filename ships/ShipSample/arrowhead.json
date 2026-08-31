@@ -58,5 +58,12 @@
       { "id": 10702, "amount": 6 },
       { "id": 10711, "amount": 8 }
     ]
-  }
+  },
+
+  "shipStats": [
+    { "stat": "ENERGY_BANK", "percent": 140.0 },
+    { "stat": "ENERGY_REGEN", "percent": 90.0 },
+    { "stat": "STATION_SLOT", "flat": 5.0 },
+    { "stat": "PLATFORM_SLOT", "flat": 1.0 }
+  ]
 }

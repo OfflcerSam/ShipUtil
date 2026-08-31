@@ -12,7 +12,7 @@ public record ShipDefinition(int id, int icon, String color, String name, String
                              int renderIndex, int engineDisplacement, float hull, float cargo,
                              List<TurretSlot> weaponLayout, int energySlots, int armorSlots, int shieldSlots,
                              int deviceSlots, int moduleSlots, int engineSlots,
-                             Registration registration, Recipe recipe) {
+                             Registration registration, Recipe recipe, List<ShipStat> shipStats) {
 
     public record TurretSlot(double angle, double distance) {
     }
@@ -62,6 +62,12 @@ public record ShipDefinition(int id, int icon, String color, String name, String
     }
 
     /**
+     * One or more entries in the optional "shipStats" section - a permanent bonus applied to ship.
+     */
+    public record ShipStat(String stat, Float flat, Float percent) {
+    }
+
+    /**
      * Parses and validates one ship JSON object.
      * Throws JsonValue.JsonException with a specific field name on any missing/malformed required field.
      */
@@ -99,6 +105,7 @@ public record ShipDefinition(int id, int icon, String color, String name, String
 
         Registration registration = parseRegistration(root);
         Recipe recipe = parseRecipe(root);
+        List<ShipStat> shipStats = parseShipStats(root);
 
         return new ShipDefinition(
                 id,
@@ -120,7 +127,8 @@ public record ShipDefinition(int id, int icon, String color, String name, String
                 moduleSlots,
                 engineSlots,
                 registration,
-                recipe
+                recipe,
+                shipStats
         );
     }
 
@@ -217,5 +225,33 @@ public record ShipDefinition(int id, int icon, String color, String name, String
         }
 
         return new Recipe(label, blueprintId, blueprintAmount, List.copyOf(ingredients));
+    }
+
+    /**
+     * Parses the optional "shipStats" section.
+     */
+    private static List<ShipStat> parseShipStats(JsonValue root) {
+        List<ShipStat> shipStats = new ArrayList<>();
+
+        JsonValue shipStatsValue = root.getOrNull("shipStats");
+        if (shipStatsValue == null || shipStatsValue.isNull()) {
+            return shipStats;
+        }
+
+        for (JsonValue entry : shipStatsValue.asArray()) {
+            String stat = entry.get("stat").asString();
+            Float flat = entry.has("flat") ? entry.get("flat").asFloat() : null;
+            Float percent = entry.has("percent") ? entry.get("percent").asFloat() : null;
+
+            if (flat == null && percent == null) {
+                throw new JsonValue.JsonException(
+                        "shipStats entry for \"" + stat + "\" needs at least one of \"flat\" or \"percent\""
+                );
+            }
+
+            shipStats.add(new ShipStat(stat, flat, percent));
+        }
+
+        return shipStats;
     }
 }
