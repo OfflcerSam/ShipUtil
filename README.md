@@ -165,6 +165,29 @@ Either an array of custom turret slots, or a string naming one of vanilla's own 
 
 **DO NOT** change the weaponLayout between Vanilla and Custom, or alter weaponLayout mid-playthrough it will cause the ship to turn into a null item.
 
+### `hull` / `cargo`
+
+**These are not the final in-game numbers. Both get run through a per-tier multiplier the moment the ship registers:**
+
+```java
+baseHullintegrity = round(baseHullintegrity * TIER_HULL[tier] / 10) * 10;
+baseCargoSpace = round(baseCargoSpace * TIER_CARGO[tier] / 10) * 10;
+```
+
+| Tier         | 0   | 1    | 2   | 3    | 4   | 5    | 6    | 7    |
+|--------------|-----|------|-----|------|-----|------|------|------|
+| `TIER_HULL`  | 1.0 | 2.0  | 3.0 | 4.0  | 5.0 | 6.75 | 7.75 | 8.75 |
+| `TIER_CARGO` | 2.0 | 3.25 | 4.5 | 5.75 | 7.0 | 9.5  | 11.0 | 12.5 |
+
+Hull displays as that scaled/rounded number directly. Cargo goes through one more step for its tooltip text.
+`GameUtil.volumeDisplay()` multiplies it by another 10 (an internal-units-to-Liters conversion) and switches to `k` notation above 999.
+
+**Worked example** - Arrowhead's own JSON (`hull: 300.0`, `cargo: 61.875`, `tier: 0`):
+- Hull: `round(300.0 * 1.0 / 10) * 10` = **300** then shown as Hull: 300.
+- Cargo: `round(61.875 * 2.0 / 10) * 10` = **120** stored then `120 * 10` = 1200 for display then shown as `Cargo 1.2kL`
+
+If you want a *specific* final displayed number, work backwards from the tier's multiplier rather than assuming the JSON value is what shows up as-is.
+
 ### `registration` (optional)
 
 Controls whether the ship shows up anywhere beyond just existing as a usable ship. Any sub-section left out simply isn't registered.
