@@ -12,7 +12,7 @@ Latest game version support: 0.5.9.6
 Place JSON files under:
 
 ```
-<gameDirectory>/ships/<yourModName>/*.json
+<gameDirectory>/ships/<yourShipPackName>/*.json
 ```
 
 Each subfolder of `ships/` is treated as its own namespace (typically your mod's name).
