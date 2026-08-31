@@ -86,14 +86,11 @@ Example that is included in repo:
     { "stat": "ENERGY_REGEN", "percent": 90.0 },
     { "stat": "STATION_SLOT", "flat": 5.0 },
     { "stat": "PLATFORM_SLOT", "flat": 1.0 }
-  ]
+  ],
+
+  "builtInDevices": [ 960 ]
 }
 ```
-
-The `shipStats` and `builtInDevices` values above are illustrative, not from the Arrowhead itself - `shipStats` reuses
-the real bonus values ShipTest's original `ShipListMixin` gave to its Foundry ship (id 40), and `builtInDevices` is a
-placeholder id since I don't have a verified device item id to put there. Arrowhead's own JSON in this repo doesn't
-include either section for that reason - fill in your own once you've confirmed real ids for your use case.
 
 ### Base fields
 
@@ -153,8 +150,8 @@ bpCovertPlans = 20129; bpCarrierPlans = 20130; bpSpecterPlans = 20139; bpArchPla
 
 ### `shipStats` (optional)
 
-Gives the ship permanent stat bonuses, reapplied every time its stats recompile. 
-This is the JSON equivalent of  ShipTest's `ShipListMixin`, which hardcoded a per-ship-id `if` block mirroring the giant 
+Gives the ship permanent stat bonuses, reapplied every time its stats recompile.
+This is the JSON equivalent of  ShipTest's `ShipListMixin`, which hardcoded a per-ship-id `if` block mirroring the giant
 vanilla case switch in `items.lists.ShipList#compile(boolean, int)` - here it's driven generically off whatever's in the ship's JSON instead.
 
 Each entry is `{ "stat": "NAME", "flat": #, "percent": # }` - `stat` is the name of an `items.Stat` constant
@@ -196,9 +193,24 @@ that doesn't support the one you gave it (see table) just logs a warning in-game
 | `STATION_SLOT`    | Yes  | No      | Bonus deployable station slots.                                                                                                                    |
 | `MISSILE_BONUS`   | Yes  | No      | Missile salvo size.                                                                                                                                |
 
+Every stat bonus you give a ship automatically shows up in its in-game description, exactly like vanilla ships do.
+So you don't need to write this text yourself or do anything extra, it's automatic.
+
 ### `builtInDevices` (optional)
 
-TODO
+A flat array of device item ids, Only 16 of these actually do anything.
+`items.lists.DeviceList#compile` checks an *installed* device's item id against to flip one of
+`game.shiputils.UniqueDeviceUpdater`'s static flags on.
+
+If you want your ship's description to say that it has a named Inbuilt (e.g. "Inbuilt: Booster, "), you need to type that
+into your own `"description"` field yourself, same as vanilla does.
+
+| IDs                     | Flag(s)                                                                    | Effect                           |
+|-------------------------|----------------------------------------------------------------------------|----------------------------------|
+| `920` `921` `922` `923` | `hasDroneBoost1` - `hasDroneBoost4`                                        | Drone Boost tiers 1-4.           |
+| `960` `961` `962` `963` | `hasBooster` / `hasBetterBooster` / `hasBestBooster` / `hasBestestBooster` | Booster tiers 1-4.               |
+| `970` `971` `972` `973` | `hasOffLevel1` - `hasOffLevel4`                                            | Offensive Coprocessor tiers 1-4. |
+| `980` `981` `982` `983` | `hasDefLevel1` - `hasDefLevel4`                                            | Defensive Coprocessor tiers 1-4. |
 
 ## Color constants
 
@@ -256,8 +268,8 @@ automatically during loading, so drop-in-a-folder works for sprites as well inst
 
 ## Setup
 
-`ships/ShipSample/arrowhead.json` recreates ShipTest's original Arrowhead as JSON, using id `1000` and exercising every optional section above.
-market listing, tier-0 NPC spawn, a  sector-tier-0 boss spawn, a police spawn, and its original crafting recipe. `ship_base_1000.png` sits alongside it as the matching sprite.
+`ships/ShipSample/arrowhead.json` recreates ShipTest's original Arrowhead as JSON, using id `1000` and exercising every optional section above:
+market listing, tier-0 NPC spawn, a sector-tier-0 boss spawn, a police spawn, its original crafting recipe, a couple of `shipStats` bonuses, and an inbuilt Booster device. `ship_base_1000.png` sits alongside it as the matching sprite.
 
 Copy the `ShipSample` folder to `<gameDirectory>/ships/` to try it. If ships folder doesn't exist create it.
 
