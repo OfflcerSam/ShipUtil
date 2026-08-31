@@ -1,9 +1,11 @@
 # ShipUtil / ShipFoundry
 
 A Fabric mod for Sector Space that loads ship definitions from JSON files, so a ship (and its market listing,
-spawn behavior, crafting recipe, stat bonuses, and built-in devices) can be authored as data instead of Java/Mixin code.
+spawn behavior, crafting recipe, stat bonuses, and built-in devices) can be written as JSON data instead of Java/Mixin code.
 
-Requires my fork of SSFML: https://github.com/OfflcerSam/SectorSpaceFabricModLoader
+Requires my fork of [SSFML](https://github.com/OfflcerSam/SectorSpaceFabricModLoader).
+
+Be careful editing certain stats mid-playthrough, it could cause it to be technically a separate item and make the original null.
 
 Latest game version support: 0.5.9.6
 
@@ -21,11 +23,11 @@ If two files claim the same id, the second one loaded is skipped with a log mess
 
 A ship's sprite is optional. If a PNG named `ship_base_<renderIndex>.png` sits next to the ship's JSON in the same
 mod folder, it's copied into `<gameDirectory>/entity/` automatically (see [Ship textures](#ship-textures) below).
-Without one, the ship just uses vanilla's usual missing-texture fallback.
+Without one, the ship just uses vanilla's usual missing-texture fallback. (No image)
 
 ## Current Schema
 
-Every section below `slots` is optional, it just won't be  listed on any market, won't spawn as an NPC/boss/police ship, and won't have a crafting recipe.
+Every section below `slots` is optional, it just won't be  listed on any market, won't spawn as an NPC/boss/police ship, won't have a crafting recipe, etc.
 Example that is included in repo:
 ```json
 {
@@ -181,6 +183,7 @@ A ship with no `"registration"` at all is loadable/usable but doesn't load to ma
 ### `recipe` (optional)
 
 Adds the ship to the standard crafting table (`CraftingTableNormal`). If omitted, the ship simply isn't craftable.
+Crafting recipes override the value of the ship, ship value is otherwise auto-calculated from stats.
 
 | Field             | Type   | Notes                                                                                                            |
 |-------------------|--------|------------------------------------------------------------------------------------------------------------------|
