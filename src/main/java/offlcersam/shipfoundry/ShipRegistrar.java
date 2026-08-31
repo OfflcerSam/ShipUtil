@@ -92,6 +92,19 @@ public final class ShipRegistrar {
         Color color = resolveConstant(Color.class, def.color(), "color");
         TypeTag rarity = resolveConstant(TypeTag.class, def.rarity(), "rarity");
 
+        if (!def.shipStats().isEmpty()) {
+            List<StatBonus> statBonuses = new ArrayList<>();
+            for (ShipDefinition.ShipStat shipStat : def.shipStats()) {
+                Stat stat = resolveConstant(Stat.class, shipStat.stat(), "shipStats.stat");
+                statBonuses.add(new StatBonus(stat, shipStat.flat(), shipStat.percent()));
+            }
+            SHIP_STATS.put(def.id(), List.copyOf(statBonuses));
+        }
+
+        if (!def.builtInDevices().isEmpty()) {
+            BUILT_IN_DEVICES.put(def.id(), def.builtInDevices());
+        }
+
         ShipList.write(
                 registerShipID(def.id()),
                 def.icon(),
@@ -116,19 +129,6 @@ public final class ShipRegistrar {
         if (def.registration().market()) {
             MARKET_SHIP_IDS.add(def.id());
             ModLogger.log("[ShipFoundry] Registered ship " + def.name() + " for market listings");
-        }
-
-        if (!def.shipStats().isEmpty()) {
-            List<StatBonus> statBonuses = new ArrayList<>();
-            for (ShipDefinition.ShipStat shipStat : def.shipStats()) {
-                Stat stat = resolveConstant(Stat.class, shipStat.stat(), "shipStats.stat");
-                statBonuses.add(new StatBonus(stat, shipStat.flat(), shipStat.percent()));
-            }
-            SHIP_STATS.put(def.id(), List.copyOf(statBonuses));
-        }
-
-        if (!def.builtInDevices().isEmpty()) {
-            BUILT_IN_DEVICES.put(def.id(), def.builtInDevices());
         }
 
         LOADED_SHIPS.add(def);
