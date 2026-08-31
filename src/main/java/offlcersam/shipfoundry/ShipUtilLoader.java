@@ -102,7 +102,7 @@ public final class ShipUtilLoader {
 
         ModLogger.log(
                 "[ShipFoundry] Loaded " + loaded
-                        + " ship(s) from mod folder \"" + modName + "\""
+                        + " ship(s) from ship pack folder \"" + modName + "\""
         );
 
         return loaded;
