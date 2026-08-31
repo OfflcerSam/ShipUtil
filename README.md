@@ -3,6 +3,10 @@
 A Fabric mod for Sector Space that loads ship definitions from JSON files, so a ship (and its market listing,
 spawn behavior, and crafting recipe) can be authored as data instead of Java/Mixin code.
 
+Requires my fork of SSFML: https://github.com/OfflcerSam/SectorSpaceFabricModLoader
+
+Latest game version support: 0.5.9.6
+
 ## Folder convention
 
 Place JSON files under:
