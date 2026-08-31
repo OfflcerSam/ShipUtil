@@ -154,8 +154,21 @@ iconTextureY = (iconNumber * 32) / 1024 * 32;
 ```
 i.e. `column = iconNumber % 32`, `row = iconNumber / 32`, reading left-to-right then top-to-bottom, same as a normal grid.
 
-**Icon choice generally tracks ship tier in practice.**
-Here are some common Icon numbers and their tier usage:
+**Icon usage seems to somewhat mirror tier and secondarily rarity in vanilla.**
+There is a formed pattern that I found and thus here is the recommendation:
+
+| Icon  | Tier range | Dominant rarity                      | Notes                                                       |
+|-------|------------|--------------------------------------|-------------------------------------------------------------|
+| `30`  | 0-1        | COMMON only (21/21)                  | Starter-tier icon, exclusively common in every real usage.  |
+| `62`  | 0-3        | COMMON/UNCOMMON, some RARE/LEGENDARY | Early-mid tier icon.                                        |
+| `94`  | 2-5        | UNCOMMON/RARE, some EXOTIC           | Mid-tier icon.                                              |
+| `126` | 3-7        | LEGENDARY/EXOTIC/RARE, some UNCOMMON | Seem to be the default choice for anything mid-tier and up. |
+| `158` | 3-7        | EXOTIC/RARE, some LEGENDARY/UNCOMMON | Less common alternate to `126` at the same tier range.      |
+
+Two icons seem to not be general purpose like the above.
+They are Icon `1` which is used by Space Blob / Abyssal Creature ships and Icon `216` which seems to be T5+ Battle Carriers.
+
+Otherwise mess with them as you want, hell make it a non-ship Icon for fun.
 
 ### `description`
 
