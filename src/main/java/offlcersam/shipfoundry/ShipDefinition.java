@@ -12,7 +12,7 @@ public record ShipDefinition(int id, int icon, String color, String name, String
                              int renderIndex, int engineDisplacement, float hull, float cargo,
                              List<TurretSlot> weaponLayout, int energySlots, int armorSlots, int shieldSlots,
                              int deviceSlots, int moduleSlots, int engineSlots,
-                             Registration registration, Recipe recipe, List<ShipStat> shipStats) {
+                             Registration registration, Recipe recipe, List<ShipStat> shipStats, List<Integer> builtInDevices) {
 
     public record TurretSlot(double angle, double distance) {
     }
@@ -106,6 +106,7 @@ public record ShipDefinition(int id, int icon, String color, String name, String
         Registration registration = parseRegistration(root);
         Recipe recipe = parseRecipe(root);
         List<ShipStat> shipStats = parseShipStats(root);
+        List<Integer> builtInDevices = parseBuiltInDevices(root);
 
         return new ShipDefinition(
                 id,
@@ -128,7 +129,8 @@ public record ShipDefinition(int id, int icon, String color, String name, String
                 engineSlots,
                 registration,
                 recipe,
-                shipStats
+                shipStats,
+                builtInDevices
         );
     }
 
@@ -253,5 +255,23 @@ public record ShipDefinition(int id, int icon, String color, String name, String
         }
 
         return shipStats;
+    }
+
+    /**
+     * Parses the optional "builtInDevices" section.
+     */
+    private static List<Integer> parseBuiltInDevices(JsonValue root) {
+        List<Integer> builtInDevices = new ArrayList<>();
+
+        JsonValue builtInDevicesValue = root.getOrNull("builtInDevices");
+        if (builtInDevicesValue == null || builtInDevicesValue.isNull()) {
+            return builtInDevices;
+        }
+
+        for (JsonValue entry : builtInDevicesValue.asArray()) {
+            builtInDevices.add(entry.asInt());
+        }
+
+        return builtInDevices;
     }
 }

@@ -127,6 +127,10 @@ public final class ShipRegistrar {
             SHIP_STATS.put(def.id(), List.copyOf(statBonuses));
         }
 
+        if (!def.builtInDevices().isEmpty()) {
+            BUILT_IN_DEVICES.put(def.id(), def.builtInDevices());
+        }
+
         LOADED_SHIPS.add(def);
 
         ModLogger.log("[ShipFoundry] Registered ship " + def.name() + " (id: " + def.id() + ")");
@@ -193,4 +197,8 @@ public final class ShipRegistrar {
         return SHIP_STATS.getOrDefault(shipBaseId, List.of());
     }
 
+    /** Returns the built-in device item ids to apply for a ship id, or an empty list if it has none. */
+    public static List<Integer> getBuiltInDevices(int shipBaseId) {
+        return BUILT_IN_DEVICES.getOrDefault(shipBaseId, List.of());
+    }
 }

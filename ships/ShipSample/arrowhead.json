@@ -65,5 +65,7 @@
     { "stat": "ENERGY_REGEN", "percent": 90.0 },
     { "stat": "STATION_SLOT", "flat": 5.0 },
     { "stat": "PLATFORM_SLOT", "flat": 1.0 }
-  ]
+  ],
+
+  "builtInDevices": [ 960 ]
 }

@@ -9,7 +9,8 @@
     "GraphicsLoaderMixin",
     "CraftingTableMixin",
     "PlayerMixin",
-    "ShipListMixin"
+    "ShipListMixin",
+    "UniqueDeviceUpdaterMixin"
   ],
   "injectors": {
     "defaultRequire": 1
