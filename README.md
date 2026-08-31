@@ -256,7 +256,7 @@ automatically during loading, so drop-in-a-folder works for sprites as well inst
 
 ## Setup
 
-`example_ships_folder/ShipSample/arrowhead.json` recreates ShipTest's original Arrowhead as JSON, using id `1000` and exercising every optional section above.
+`ships/ShipSample/arrowhead.json` recreates ShipTest's original Arrowhead as JSON, using id `1000` and exercising every optional section above.
 market listing, tier-0 NPC spawn, a  sector-tier-0 boss spawn, a police spawn, and its original crafting recipe. `ship_base_1000.png` sits alongside it as the matching sprite.
 
 Copy the `ShipSample` folder to `<gameDirectory>/ships/` to try it. If ships folder doesn't exist create it.
