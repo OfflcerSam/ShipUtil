@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 /*
-TODO: Edit this to be more JSON data magic
+Populated from the ship JSON's "registration" section via ShipRegistrar.registerSpawnSettings() - see ShipDefinition.
  */
 public final class NPCRegistrar {
 
@@ -78,7 +78,7 @@ public final class NPCRegistrar {
         for (int i = 0; i < Math.max(1, weight); i++) {
             pool.add(shipBaseId);
         }
-        ModLogger.log("[ShipTest] Registered ship " + shipBaseId + " as tiered NPC (tier " + tier + ", weight " + weight + ")");
+        ModLogger.log("[ShipFoundry] Registered ship " + shipBaseId + " as tiered NPC (tier " + tier + ", weight " + weight + ")");
     }
 
     /**
@@ -90,7 +90,7 @@ public final class NPCRegistrar {
         for (int i = 0; i < Math.max(1, weight); i++) {
             pool.add(shipBaseId);
         }
-        ModLogger.log("[ShipTest] Registered ship " + shipBaseId + " as boss spawn (sector tier " + sectorTier + ", weight " + weight + ")");
+        ModLogger.log("[ShipFoundry] Registered ship " + shipBaseId + " as boss spawn (sector tier " + sectorTier + ", weight " + weight + ")");
     }
 
     // Called from SpawnNPCMixin right after the vanilla tier switch in spawnTieredMob.
@@ -125,7 +125,7 @@ public final class NPCRegistrar {
         for (int i = 0; i < Math.max(1, weight); i++) {
             POLICE_POOL.add(shipBaseId);
         }
-        ModLogger.log("[ShipTest] Registered ship " + shipBaseId + " as police spawn (weight " + weight + ")");
+        ModLogger.log("[ShipFoundry] Registered ship " + shipBaseId + " as police spawn (weight " + weight + ")");
     }
 
     // Called from SpawnNPCMixin right after spawnPolice's switch converges on a chosen ship id.

@@ -33,5 +33,30 @@
     "device": 0,
     "module": 1,
     "engine": 1
+  },
+
+  "registration": {
+    "market": true,
+
+    "npc": [
+      { "tier": 0, "weight": 5 }
+    ],
+
+    "boss": [
+      { "sectorTier": 0, "weight": 1 }
+    ],
+
+    "police": { "weight": 1 }
+  },
+
+  "recipe": {
+    "label": "T1:Arrowhead",
+    "blueprintId": 20107,
+    "blueprintAmount": 1,
+    "ingredients": [
+      { "id": 100001, "amount": 1 },
+      { "id": 10702, "amount": 6 },
+      { "id": 10711, "amount": 8 }
+    ]
   }
 }

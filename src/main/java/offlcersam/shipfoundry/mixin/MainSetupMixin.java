@@ -20,4 +20,16 @@ public class MainSetupMixin {
     private void shipfoundry$loadShips(CallbackInfo ci) {
         offlcersam.shipfoundry.ShipUtilLoader.load();
     }
+
+    @Inject(
+            method = "setup",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lgame/markets/MarketDatabase;loadDatabase()V",
+                    shift = At.Shift.AFTER
+            )
+    )
+    private void shipfoundry$registerMarkets(CallbackInfo ci) {
+        offlcersam.shipfoundry.MarketRegistrar.registerMarkets();
+    }
 }

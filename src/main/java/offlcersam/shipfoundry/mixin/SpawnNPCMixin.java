@@ -20,10 +20,10 @@ public class SpawnNPCMixin {
             method = "spawnTieredMob(IIILgame/world/Sector;ZIIZII)Lilluminatus/core/datastructures/List;",
             at = @At("HEAD")
     )
-    private static void shiptest$captureTier(int x, int y, int spawnPosSpread, Sector sector,
-                                             boolean orphan, int mobSize, int hostilityConstant,
-                                             boolean stayAtSpawn, int forceFaction, int tier,
-                                             CallbackInfoReturnable<List<SpaceShip>> cir) {
+    private static void shipfoundry$captureTier(int x, int y, int spawnPosSpread, Sector sector,
+                                                boolean orphan, int mobSize, int hostilityConstant,
+                                                boolean stayAtSpawn, int forceFaction, int tier,
+                                                CallbackInfoReturnable<List<SpaceShip>> cir) {
         NPCRegistrar.stashTier(tier);
     }
 
@@ -34,9 +34,9 @@ public class SpawnNPCMixin {
                     target = "L_database/SpawnMacro;generateShip(IILgame/world/Sector;III)Lgame/objects/SpaceShip;"
             )
     )
-    private static SpaceShip shiptest$redirectTieredMobShip(int xPos, int yPos, Sector sector,
-                                                            int hostilityConstant, int spawnIndex,
-                                                            int factionIndex) {
+    private static SpaceShip shipfoundry$redirectTieredMobShip(int xPos, int yPos, Sector sector,
+                                                               int hostilityConstant, int spawnIndex,
+                                                               int factionIndex) {
         int rolled = NPCRegistrar.rollTieredMob(NPCRegistrar.consumeStashedTier(), spawnIndex);
         return SpawnMacro.generateShip(xPos, yPos, sector, hostilityConstant, rolled, factionIndex);
     }
@@ -49,9 +49,9 @@ public class SpawnNPCMixin {
                     target = "L_database/SpawnMacro;generateShip(IILgame/world/Sector;III)Lgame/objects/SpaceShip;"
             )
     )
-    private static SpaceShip shiptest$redirectPoliceShip(int xPos, int yPos, Sector sector,
-                                                         int hostilityConstant, int spawnIndex,
-                                                         int factionIndex) {
+    private static SpaceShip shipfoundry$redirectPoliceShip(int xPos, int yPos, Sector sector,
+                                                            int hostilityConstant, int spawnIndex,
+                                                            int factionIndex) {
         int rolled = NPCRegistrar.rollPolice(spawnIndex);
         return SpawnMacro.generateShip(xPos, yPos, sector, hostilityConstant, rolled, factionIndex);
     }
@@ -63,9 +63,9 @@ public class SpawnNPCMixin {
                     target = "L_database/SpawnMacro;generateShip(IILgame/world/Sector;III)Lgame/objects/SpaceShip;"
             )
     )
-    private static SpaceShip shiptest$redirectTempPoliceShip(int xPos, int yPos, Sector sector,
-                                                             int hostilityConstant, int spawnIndex,
-                                                             int factionIndex) {
+    private static SpaceShip shipfoundry$redirectTempPoliceShip(int xPos, int yPos, Sector sector,
+                                                                int hostilityConstant, int spawnIndex,
+                                                                int factionIndex) {
         int rolled = NPCRegistrar.rollTempPolice(spawnIndex);
         return SpawnMacro.generateShip(xPos, yPos, sector, hostilityConstant, rolled, factionIndex);
     }
@@ -78,7 +78,7 @@ public class SpawnNPCMixin {
                     target = "L_database/SpawnNPC;spawnBoss(IILgame/world/Sector;I)V"
             )
     )
-    private static void shiptest$redirectBoss(int shipIndex, int faction, Sector sector, int bossSlot) {
+    private static void shipfoundry$redirectBoss(int shipIndex, int faction, Sector sector, int bossSlot) {
         int rolled = NPCRegistrar.rollBoss(sector.getSectorTier(), shipIndex);
         SpawnNPC.spawnBoss(rolled, faction, sector, bossSlot);
     }
