@@ -158,6 +158,8 @@ LT_VIOLET, VIOLET, DK_VIOLET, LAVENDER, LT_LAVENDER, PURPLE, LT_PURPLE, DK_PURPL
 
 Vanilla IDs will most likely win, do not try to overwrite them.
 
+Available IDs 1,699.
+
 ```
 write(): 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 35, 36, 37, 38, 39, 45,
 46, 47, 48, 49, 50, 51, 52, 90, 91, 92, 93, 94, 101, 102, 103, 104, 105, 106, 107, 108, 110, 111, 112, 113, 114, 115,
@@ -196,3 +198,5 @@ automatically during loading, so drop-in-a-folder works for sprites as well inst
 market listing, tier-0 NPC spawn, a  sector-tier-0 boss spawn, a police spawn, and its original crafting recipe. `ship_base_1000.png` sits alongside it as the matching sprite.
 
 Copy the `ShipSample` folder to `<gameDirectory>/ships/` to try it. If ships folder doesn't exist create it.
+
+Use `STEST` on character save name to get all ships on load. Otherwise, use the folder name for that folder's ships on load.
