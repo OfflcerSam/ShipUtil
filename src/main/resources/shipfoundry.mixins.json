@@ -10,7 +10,7 @@
     "CraftingTableMixin",
     "PlayerMixin",
     "ShipListMixin",
-    "UniqueDeviceUpdaterMixin",
+    "UniqueDeviceMixin",
     "UniqueNPCDropsMixin",
     "ShipStatsMixin"
   ],
