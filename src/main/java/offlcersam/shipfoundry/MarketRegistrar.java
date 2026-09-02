@@ -4,6 +4,7 @@ import _settings.Localization;
 import com.sector.bridge.SSFMLLogger;
 import game.markets.Market;
 import game.markets.MarketDatabase;
+import game.markets.MarketItem;
 import illuminatus.core.datastructures.List;
 import items.Item;
 
@@ -13,8 +14,6 @@ import java.lang.reflect.Field;
  * Registers ships that opted into market listings through their JSON data.
  */
 public final class MarketRegistrar {
-
-    private static final int PRODUCES_SOMETIMES = 3;
 
     private static boolean registered;
 
@@ -27,18 +26,18 @@ public final class MarketRegistrar {
         }
         registered = true;
 
-        int updatedMarkets = 0;
-        int addedShips = 0;
-
         /*
-         * Only ships with "registration": { "market": true } are included here.
+         * Only ships with a "registration": { "market": { ... } } section are included here.
          */
-        int[] ships = ShipRegistrar.getMarketShipDatabaseIDs();
+        java.util.List<MarketListing> ships = ShipRegistrar.getMarketShipListings();
 
-        if (ships.length == 0) {
+        if (ships.isEmpty()) {
             SSFMLLogger.log("[ShipFoundry] No custom ships opted into market registration");
             return;
         }
+
+        int updatedMarkets = 0;
+        int addedListings = 0;
 
         List<Market> markets = getMarkets();
 
@@ -52,13 +51,7 @@ public final class MarketRegistrar {
 
                 // Check MarketList for addStationIndices.
                 if (market.stationMatches(501) || market.stationMatches(511)) {
-
-                    for (int shipID : ships) {
-                        Item shipItem = new Item(shipID);
-                        Item.markAsMarketItem(shipItem, Localization.MARKET_UNIQUE_ITEM_TAG.string);
-                        market.addChecked(shipItem, PRODUCES_SOMETIMES);
-                        addedShips++;
-                    }
+                    addedListings += addListings(market, ships);
 
                     MarketDatabase.setMarket(marketIndex, market);
                     updatedMarkets++;
@@ -68,11 +61,44 @@ public final class MarketRegistrar {
 
         SSFMLLogger.log(
                 "[ShipFoundry] Added "
-                        + addedShips
+                        + addedListings
                         + " custom ship listings to "
                         + updatedMarkets
                         + " markets"
         );
+    }
+
+    private static int addListings(Market market, java.util.List<MarketListing> listings) {
+        int added = 0;
+
+        // Ships always use the dedicated "Unique" market tag, regardless of which station type sells them.
+        String marketTag = Localization.MARKET_UNIQUE_ITEM_TAG.string;
+
+        for (MarketListing listing : listings) {
+            if (listing.produce()) {
+                MarketItem sellListing = new MarketItem(listing.databaseId(), MarketItem.PRODUCES_ALWAYS);
+
+                if (sellListing.item != null) {
+                    Item.markAsMarketItem(sellListing.item, marketTag);
+                }
+
+                market.addChecked(sellListing);
+                added++;
+            }
+
+            if (listing.consume()) {
+                MarketItem buyListing = new MarketItem(listing.databaseId(), MarketItem.CONSUMES_ALWAYS);
+
+                if (buyListing.item != null) {
+                    Item.markAsMarketItem(buyListing.item, marketTag);
+                }
+
+                market.addChecked(buyListing);
+                added++;
+            }
+        }
+
+        return added;
     }
 
     @SuppressWarnings("unchecked")

@@ -36,7 +36,10 @@
   },
 
   "registration": {
-    "market": true,
+    "market": {
+      "produce": true,
+      "consume": true
+    },
 
     "npc": [
       { "tier": 0, "weight": 5 }

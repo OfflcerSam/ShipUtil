@@ -9,6 +9,12 @@ Be careful editing certain stats mid-playthrough, it could cause it to be techni
 
 Latest game version support: 0.6.0.0
 
+### Changelog Notes (Unreleased currently, will add changelog file later)
+
+- `registration.market` changed from a plain boolean to an object, so buy/sell can be controlled
+  independently - see [`market`](#market-optional). **This breaks any existing ship JSON using the old
+  `"market": true/false` boolean** - update to the object form shown below.
+
 ## Folder convention
 
 Place JSON files under:
@@ -68,7 +74,10 @@ Example that is included in repo:
   },
 
   "registration": {
-    "market": true,
+    "market": {
+      "produce": true,
+      "consume": true
+    },
 
     "npc": [
       { "tier": 0, "weight": 5 }
@@ -257,13 +266,42 @@ A ship with no `"registration"` at all is loadable/usable but doesn't load to ma
 
 | Field        | Type    | Notes                                                                                                                                                                                                                                                                                                                                                                                                                  |
 |--------------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `market`     | boolean | Optional, defaults to `false`. If `true`, the ship is listed for buy/sell at any market matching station index 501 or 511, which are vanilla shipyards. (`MarketList`'s `shipyard.addStationIndices(501, 511)`)                                                                                                                                                                                                        |
+| `market`     | object  | Optional. If present, the ship is listed for buy/sell at any market matching station index 501 or 511, which are vanilla shipyards. (`MarketList`'s `shipyard.addStationIndices(501, 511)`) See [`market`](#market-optional) below.                                                                                                                                                                                    |
 | `npc`        | array   | Optional. Each entry is `{ "tier": #, "weight": # }`. Registers the ship as a candidate normal NPC spawn for that tier (0-5). `weight` is "tickets" relative to *one* vanilla-roll ticket for that tier - weight 1 makes it roughly as common as a single vanilla ship in that tier's pool, weight 2 about twice as likely, etc. A ship can appear in multiple tiers by listing multiple entries. Minimum weight is 1. |
 | `boss`       | array   | Optional. Each entry is `{ "sectorTier": #, "weight": # }`. Same weighting rule as `npc`, but for boss spawns in that sector tier (0-6, where 6 covers "6 or higher").                                                                                                                                                                                                                                                 |
 | `police`     | object  | Optional. `{ "weight": # }`. Registers the ship as a candidate for both single police spawns and grouped temp/escort police spawns. Not tiered as police spawns are not tier gated. Minimum weight is 1.                                                                                                                                                                                                               |
 | `uniqueLoot` | array   | Optional. Each entry is `{ "id": #, "amount": #, "chance": # }`. Extra item(s) this ship can drop when destroyed as an NPC/boss, **on top of** whatever generic loot it would already drop. `amount` defaults to `1`, `chance` is a plain 0-100 percentage defaulting to `100` (always drops).                                                                                                                         |
 
 `uniqueLoot` requires the item's ID like shown in recipe.
+
+### `market` (optional)
+
+Nested inside `registration`. Omitting this field entirely means the ship isn't listed in any market at
+all.
+
+```json
+"market": {
+  "produce": true,
+  "consume": true
+}
+```
+
+| Field     | Type    | Notes                                                                                      |
+|-----------|---------|--------------------------------------------------------------------------------------------|
+| `produce` | boolean | Optional, defaults to `true`. Whether it's always buyable from the market (a "sell" line). |
+| `consume` | boolean | Optional, defaults to `true`. Whether the market always buys it back (a "buy" line).       |
+
+Game update: `MarketItem.BUY_AND_SELL_ALWAYS` (a single constant covering both directions on one item)
+was removed. Vanilla now achieves "buy and sell" by using two *different* item ids with two different
+constants (`PRODUCES_ALWAYS` / `CONSUMES_ALWAYS`), never the same id twice - see `MarketList.writeMilitaryStation()`.
+Since our custom ships only have one item id apiece, `produce`/`consume` independently control whether
+`MarketRegistrar` registers a `PRODUCES_ALWAYS` entry, a `CONSUMES_ALWAYS` entry, or both for that id.
+`"market": {}` (both flags at their `true` default) reproduces the old always-both behavior. Setting both
+to `false` is the same as omitting `market` entirely since there'd be nothing left to list.
+
+Unlike weapons/ammo, ships always use the dedicated `Localization.MARKET_UNIQUE_ITEM_TAG` ("Unique") market
+tag rather than whichever station type sells them, since ships are one-off unique items rather than regular
+restockable gear.
 
 ### `recipe` (optional)
 
@@ -413,7 +451,7 @@ into your own `"description"` field yourself, same as vanilla does.
 
 Optional array of built-in device IDs to apply to the ship when its unique devices are compiled.
 
-If you want your ship's description to say that it has a named Inbuilt (e.g. "Inbuilt: Booster, "), 
+If you want your ship's description to say that it has a named Inbuilt (e.g. "Inbuilt: Booster, "),
 you need to type that into your own "description" field yourself, same as vanilla does.
 
 Currently supported IDs:

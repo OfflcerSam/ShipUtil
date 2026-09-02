@@ -22,8 +22,8 @@ public final class ShipRegistrar {
     /** Stores the base IDs of every ship we add. */
     private static final List<Integer> REGISTERED_SHIP_IDS = new ArrayList<>();
 
-    /** Stores the base IDs of ships that should be added to markets. */
-    private static final List<Integer> MARKET_SHIP_IDS = new ArrayList<>();
+    /** Stores the ships that opted into market registration, along with their resolved produce/consume flags. */
+    private static final List<MarketListing> MARKET_SHIP_LISTINGS = new ArrayList<>();
 
     /** Stores every successfully registered ship's full definition, for anything that needs more than just an id (e.g. recipes). */
     private static final List<ShipDefinition> LOADED_SHIPS = new ArrayList<>();
@@ -73,14 +73,9 @@ public final class ShipRegistrar {
         return ids;
     }
 
-    /** Returns database IDs for ships that opted into market registration. */
-    public static int[] getMarketShipDatabaseIDs() {
-        int[] ids = new int[MARKET_SHIP_IDS.size()];
-
-        for (int i = 0; i < MARKET_SHIP_IDS.size(); i++) {
-            ids[i] = toDatabaseID(MARKET_SHIP_IDS.get(i));
-        }
-        return ids;
+    /** Returns every ship that opted into market registration, with its resolved produce/consume flags. */
+    public static List<MarketListing> getMarketShipListings() {
+        return List.copyOf(MARKET_SHIP_LISTINGS);
     }
 
     /**
@@ -162,9 +157,14 @@ public final class ShipRegistrar {
                 false
         );
 
-        if (def.registration().market()) {
-            MARKET_SHIP_IDS.add(def.id());
-            SSFMLLogger.log("[ShipFoundry] Registered ship " + def.name() + " for market listings");
+        if (def.registration().market() != null) {
+            MarketOptions market = def.registration().market();
+            MARKET_SHIP_LISTINGS.add(new MarketListing(toDatabaseID(def.id()), market.produce(), market.consume()));
+            SSFMLLogger.log(
+                    "[ShipFoundry] Registered ship " + def.name()
+                            + " for market listings (produce=" + market.produce()
+                            + ", consume=" + market.consume() + ")"
+            );
         }
 
         LOADED_SHIPS.add(def);

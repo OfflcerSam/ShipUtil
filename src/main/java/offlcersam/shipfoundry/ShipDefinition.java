@@ -22,12 +22,12 @@ public record ShipDefinition(int id, int icon, String color, String name, String
      * Optional registration settings for a ship.
      * Sections that are not present in the JSON are simply not registered.
      */
-    public record Registration(boolean market, List<NpcSpawn> npc, List<BossSpawn> boss, PoliceSpawn police,
+    public record Registration(MarketOptions market, List<NpcSpawn> npc, List<BossSpawn> boss, PoliceSpawn police,
                                List<UniqueLootDrop> uniqueLoot) {
 
         // Returns an empty registration configuration.
         public static Registration empty() {
-            return new Registration(false, List.of(), List.of(), null, List.of());
+            return new Registration(null, List.of(), List.of(), null, List.of());
         }
     }
 
@@ -171,7 +171,7 @@ public record ShipDefinition(int id, int icon, String color, String name, String
             return Registration.empty();
         }
 
-        boolean market = registrationValue.getBoolean("market", false);
+        MarketOptions market = MarketOptions.parse(registrationValue);
 
         List<NpcSpawn> npc = new ArrayList<>();
 
