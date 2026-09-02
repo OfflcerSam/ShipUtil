@@ -2,7 +2,7 @@ package offlcersam.shipfoundry.mixin;
 
 import game.objects.SpaceShip;
 import game.shiputils.DeviceUpdater;
-import items.actions.UniqueDevice; //doesnt work check later
+import items.actions.UniqueDevice;
 import mods.ModLogger;
 import offlcersam.shipfoundry.ShipRegistrar;
 import org.spongepowered.asm.mixin.Mixin;

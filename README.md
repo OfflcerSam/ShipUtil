@@ -211,7 +211,7 @@ Hull displays as that scaled/rounded number directly. Cargo goes through one mor
 
 If you want a *specific* final displayed number, work backwards from the tier's multiplier rather than assuming the JSON value is what shows up as-is.
 
-### `weaponLayout / weapon slots`
+### `weaponLayout`
 
 Either an array of custom turret slots, or a string naming one of vanilla's own built-in layouts to reuse directly.
 

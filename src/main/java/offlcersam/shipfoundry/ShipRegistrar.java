@@ -1,7 +1,7 @@
 package offlcersam.shipfoundry;
 
 import com.sector.bridge.SSFMLLogger;
-import game.weapons.WeaponSlotLayoutList;
+import game.weapons.WeaponLayout;
 import game.weapons.WeaponTurretPlacement;
 import illuminatus.core.graphics.Color;
 import items.ItemTypeConstantsInterface;
@@ -107,7 +107,7 @@ public final class ShipRegistrar {
                 placement.addSlot(slot.angle(), slot.distance());
             }
 
-            weaponLayoutIndex = WeaponSlotLayoutList.layouts.add(placement);
+            weaponLayoutIndex = WeaponLayout.layouts.add(placement);
         }
 
         Color color = resolveConstant(Color.class, def.color(), "color");
@@ -158,6 +158,8 @@ public final class ShipRegistrar {
                 def.deviceSlots(),
                 def.moduleSlots(),
                 def.engineSlots(),
+                // blacklistTrade, greylistTrade - new in 0.6.0.0. Vanilla passes true for rogue-AI "Drone" ships
+                // to exclude them from normal trade; every ShipFoundry ship defaults to a normal tradeable ship.
                 false,
                 false
         );
@@ -203,7 +205,7 @@ public final class ShipRegistrar {
 
         if (!registration.uniqueLoot().isEmpty()) {
             UNIQUE_LOOT.put(def.id(), registration.uniqueLoot());
-            ModLogger.log("[ShipFoundry] Registered " + registration.uniqueLoot().size() + " unique loot drop(s) for ship " + def.name());
+            SSFMLLogger.log("[ShipFoundry] Registered " + registration.uniqueLoot().size() + " unique loot drop(s) for ship " + def.name());
         }
     }
 
@@ -224,15 +226,17 @@ public final class ShipRegistrar {
     }
 
     /**
-     * Resolves a vanilla WeaponSlotLayoutList constant name. Case-insensitive, matching resolveConstant's convention.
+     * Resolves a vanilla WeaponLayout constant name (e.g. "S_10_T") to the layout index it was assigned at
+     * WeaponLayout.init(). Case-insensitive, matching resolveConstant's convention.
+     * (This class was named WeaponSlotLayoutList before Sector Space 0.6.0.0.)
      */
     private static int resolveVanillaWeaponLayout(String name) {
         try {
-            return WeaponSlotLayoutList.class.getField(name.toUpperCase()).getInt(null);
+            return WeaponLayout.class.getField(name.toUpperCase()).getInt(null);
         } catch (ReflectiveOperationException e) {
             throw new IllegalArgumentException(
                     "Unknown vanilla weaponLayout \"" + name
-                            + "\" - check the exact constant name on " + WeaponSlotLayoutList.class.getName()
+                            + "\" - check the exact constant name on " + WeaponLayout.class.getName()
                             + " (e.g. S_1_V .. S_10_V, S_7_T .. S_10_T)"
             );
         }
