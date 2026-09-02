@@ -21,6 +21,8 @@ Latest game version support: 0.6.0.0
 - Added an optional `lootTable` field - see [`lootTable`](#loottable-optional). Non-breaking (a ship simply
   isn't added to any drop pool if it's absent), and currently only covers rogue drone drops.
 - Added an optional `registration.rogueDrone` field - see [`rogueDrone`](#rogueDrone-optional). Non-breaking.
+- Added optional `registration.blob`/`blobBoss`/`shard`/`shardBoss`/`broodling`/`lurker` fields - see their
+  sections below. All non-breaking.
 
 ## Folder convention
 
@@ -278,7 +280,13 @@ A ship with no `"registration"` at all is loadable/usable but doesn't load to ma
 | `boss`       | array  | Optional. Each entry is `{ "sectorTier": #, "weight": # }`. Same weighting rule as `npc`, but for boss spawns in that sector tier (0-6, where 6 covers "6 or higher").                                                                                                                                                                                                                                                 |
 | `police`     | object | Optional. `{ "weight": # }`. Registers the ship as a candidate for both single police spawns and grouped temp/escort police spawns. Not tiered as police spawns are not tier gated. Minimum weight is 1.                                                                                                                                                                                                               |
 | `uniqueLoot` | array  | Optional. Each entry is `{ "id": #, "amount": #, "chance": # }`. Extra item(s) this ship can drop when destroyed as an NPC/boss, **on top of** whatever generic loot it would already drop. `amount` defaults to `1`, `chance` is a plain 0-100 percentage defaulting to `100` (always drops).                                                                                                                         |
-| `rogueDrone` | object | Optional. Registers the ship as a candidate rogue drone. See [`rogueDrone`](#rogueDrone-optional) below.                                                                                                                                                                                                                                                                                                               |
+| `rogueDrone` | object | Optional. Registers the ship as a candidate rogue drone. See [`rogueDrone`](#rogueDrone-optional) below. |
+| `blob` | array | Optional. Each entry is `{ "tier": #, "weight": # }` (tier 0-5). Registers the ship as a candidate blob for that tier. See [`blob`](#blob-optional) below. |
+| `blobBoss` | object | Optional. `{ "weight": # }`. Registers the ship as a candidate blob boss. |
+| `shard` | array | Optional. Each entry is `{ "type": #, "weight": # }` (type 0-5, matching nebula type). Registers the ship as a candidate shard mob. See [`shard`](#shard-optional) below. |
+| `shardBoss` | array | Optional. Each entry is `{ "darker": bool, "weight": # }`. Registers the ship as a candidate shard boss for that variant. |
+| `broodling` | array | Optional. Each entry is `{ "type": "broodling"/"queen"/"darkQueen"/"regular", "weight": # }`. Registers the ship as a candidate broodling-family spawn for that variant. See [`broodling`](#broodling-optional) below. |
+| `lurker` | object | Optional. `{ "weight": # }`. Registers the ship as a candidate lurker (normal, lurkerling, or lurker carrier - one shared pool covers all three). See [`lurker`](#lurker-optional) below. |
 
 `uniqueLoot` requires the item's ID like shown in recipe.
 
@@ -349,7 +357,90 @@ vanilla's own 9 presets set per id, so a custom rogue drone can be given a prese
 instead of the weak default. Look at `SpawnNPC.configRogueDrone`'s switch cases in a decompiler for vanilla's
 own values to use as reference points.
 
-This only covers rogue drones. Shard/blob/wraith/ancient spawning isn't registered through this.
+### `blob` (optional)
+
+Nested inside `registration`. Registers the ship as a candidate blob for the given tier, competing against
+vanilla's own fixed blob id for that tier (190 + tier) the same weighted way `npc`/`boss` do.
+
+```json
+"blob": [
+  { "tier": 3, "weight": 1 }
+]
+```
+
+| Field    | Type | Notes                                                           |
+|----------|------|-----------------------------------------------------------------|
+| `tier`   | int  | Required, 0-5. Which tier's blob spawns this competes against.  |
+| `weight` | int  | Optional, defaults to `1`. Same weighting rule as `npc`/`boss`. |
+
+Unlike `rogueDrone`, blob gear is applied procedurally by tier (`SpawnNPC.populateShardGear` style formula
+using the tier number directly) rather than dispatched by literal ship id, so a substituted custom ship
+gets appropriate gear automatically. No separate gear preset is needed here. This single registration
+covers every method that can spawn a tiered blob (`spawnBlobs`, `spawnBlobsGuarding`, `spawnTempBlobSwarm`).
+
+A separate, non-tiered "blob boss" (vanilla id 196) exists too - register `registration.blobBoss` (`{
+"weight": # }`) to compete for that specific encounter instead.
+
+### `shard` (optional)
+
+Nested inside `registration`. Registers the ship as a candidate shard mob for the given nebula type,
+competing against vanilla's own fixed shard id for that type (171 + type). Same tier/type-parametrized gear
+situation as `blob` - no gear preset needed.
+
+```json
+"shard": [
+  { "type": 2, "weight": 1 }
+]
+```
+
+| Field    | Type | Notes                                                                    |
+|----------|------|--------------------------------------------------------------------------|
+| `type`   | int  | Required, 0-5. Matches `Nebula.getType(sector)`'s value for that sector. |
+| `weight` | int  | Optional, defaults to `1`. Same weighting rule as `npc`/`boss`.          |
+
+A separate shard boss (vanilla ids 197 normal, 198 darker) exists too - register `registration.shardBoss`
+(array of `{ "darker": bool, "weight": # }`) to compete for that encounter instead. One entry can target
+either variant; add two entries to compete for both.
+
+### `broodling` (optional)
+
+Nested inside `registration`. Registers the ship as a candidate broodling-family spawn, competing against
+whichever of vanilla's four fixed ids the `type` matches.
+
+```json
+"broodling": [
+  { "type": "broodling", "weight": 1 }
+]
+```
+
+| Field    | Type   | Notes                                                                                      |
+|----------|--------|------------------------------------------------------------------------------------------------|
+| `type`   | string | Required. One of `"broodling"` (223), `"queen"` (226), `"darkQueen"` (227), or `"regular"` (224, the plain brood variant). |
+| `weight` | int    | Optional, defaults to `1`. Same weighting rule as `npc`/`boss`.                                 |
+
+Each of vanilla's four broodling variants hardcodes its own fixed gear loadout inline rather than through a
+tier/type-parametrized function, but that loadout doesn't depend on the literal ship id either - it's
+selected purely by which boolean flag the caller passed into `SpawnNPC.spawnBrood`, so a substituted custom
+ship still gets the gear appropriate to whichever variant it replaced. No gear preset is needed here.
+
+### `lurker` (optional)
+
+Nested inside `registration`. Registers the ship as a candidate lurker, competing against *any* of vanilla's
+lurker sub-variants (normal, lurkerling, or lurker carrier) across every method that can spawn one -
+one shared pool covers all of them, the same way vanilla's own police pool covers Cruiser/Carrier/Corvette
+through a single `spawnPolice(...)`.
+
+```json
+"lurker": { "weight": 1 }
+```
+
+| Field    | Type | Notes                                                            |
+|----------|------|----------------------------------------------------------------------|
+| `weight` | int  | Optional, defaults to `1`. Same weighting rule as `npc`/`boss`, applied independently at each lurker spawn method. |
+
+This only covers rogue drones, blob, shard, broodling, and lurker. Wraith/Ancient spawning isn't registered
+through this - those encounters are POI-structure-based (fixed, hand-placed layouts rather than a spawn
+pool) and are being held off for now.
 
 ### `recipe` (optional)
 
@@ -628,10 +719,8 @@ automatically during loading, so drop-in-a-folder works for sprites as well inst
 
 - Recipe ingredient/blueprint IDs are raw database item ids (e.g. `100001`, `10702`) as I have not put in name-based lookup yet.
   To get the recipe IDs, I recommend looking through CraftingTableNormal using a decompiler like JADX.
-- Blob and shard mobs (non-boss) spawning aren't registrable. Both spawn a single fixed ship id per
-  tier/region rather than rolling from a pool, so `npc`/`boss`/`rogueDrone`'s weighted-registration
-  mechanism has nothing to compete against for them. Wraith/Ancient encounters are POI-structure-based
-  (fixed, hand-placed layouts rather than a spawn pool) and are being held off for now.
+- Void Horror, Sniper Boss, and Pirate Cove ships aren't registrable yet. Wraith/Ancient encounters are
+  POI-structure-based (fixed, hand-placed layouts rather than a spawn pool) and are being held off for now.
 
 ## Config
 
@@ -648,7 +737,7 @@ Comment lines starting with `#` are safe to read but not meant to be edited.
 ## Setup
 
 `ships/ShipSample/arrowhead.json` recreates ShipTest's original Arrowhead as JSON, using id `1000` and exercising every optional section above:
-market listing, tier-0 NPC spawn, a sector-tier-0 boss spawn, a police spawn, a tier-1 rogue drone registration, a couple of unique loot drops, its original crafting recipe, a couple of `shipStats` bonuses, an inbuilt Booster device, and a tier-0 `lootTable` entry. `ship_base_1000.png` sits alongside it as the matching sprite.
+market listing, tier-0 NPC spawn, a sector-tier-0 boss spawn, a police spawn, a tier-1 rogue drone registration, a blob/blob boss/shard/shard boss/broodling/lurker registration for every non-Wraith/Ancient special entity, a couple of unique loot drops, its original crafting recipe, a couple of `shipStats` bonuses, an inbuilt Booster device, and a tier-0 `lootTable` entry. `ship_base_1000.png` sits alongside it as the matching sprite.
 
 Copy the `ShipSample` folder to `<gameDirectory>/ships/` to try it. If ships folder doesn't exist create it.
 

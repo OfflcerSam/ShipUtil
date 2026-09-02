@@ -23,11 +23,16 @@ public record ShipDefinition(int id, int icon, String color, String name, String
      * Sections that are not present in the JSON are simply not registered.
      */
     public record Registration(MarketOptions market, List<NpcSpawn> npc, List<BossSpawn> boss, PoliceSpawn police,
-                               List<UniqueLootDrop> uniqueLoot, RogueDroneSpawn rogueDrone) {
+                               List<UniqueLootDrop> uniqueLoot, RogueDroneSpawn rogueDrone,
+                               List<BlobSpawn> blob, BlobBossSpawn blobBoss, List<ShardSpawn> shard,
+                               List<ShardBossSpawn> shardBoss, List<BroodlingSpawn> broodling, LurkerSpawn lurker) {
 
         // Returns an empty registration configuration.
         public static Registration empty() {
-            return new Registration(null, List.of(), List.of(), null, List.of(), null);
+            return new Registration(
+                    null, List.of(), List.of(), null, List.of(), null,
+                    List.of(), null, List.of(), List.of(), List.of(), null
+            );
         }
     }
 
@@ -63,6 +68,52 @@ public record ShipDefinition(int id, int icon, String color, String name, String
      */
     public record RogueDroneSpawn(int tier, int weight, int weaponLaser, int weaponBay, int energyFullID,
                                   int levelMin, int levelMax, long creditMin, long creditMax) {
+    }
+
+    /**
+     * Registers this ship as a candidate blob, competing against vanilla's own fixed blob id for that tier
+     * (190 + tier) the same weighted way npc/boss do. Blob gear is applied procedurally by tier rather than
+     * by literal ship id, so a substituted custom ship gets appropriate gear automatically - no separate
+     * gear preset is needed here, unlike rogueDrone.
+     */
+    public record BlobSpawn(int tier, int weight) {
+    }
+
+    /**
+     * Registers this ship as a candidate "blob boss" (vanilla id 196), a single fixed encounter distinct
+     * from the tiered blob ladder above.
+     */
+    public record BlobBossSpawn(int weight) {
+    }
+
+    /**
+     * Registers this ship as a candidate shard mob, competing against vanilla's own fixed shard id for
+     * that nebula type (171 + type). Same "gear is tier-parametrized, not id-dispatched" situation as blob.
+     */
+    public record ShardSpawn(int type, int weight) {
+    }
+
+    /**
+     * Registers this ship as a candidate shard boss. darker picks which of vanilla's two shard boss ids
+     * (197 normal, 198 darker) this entry competes against.
+     */
+    public record ShardBossSpawn(boolean darker, int weight) {
+    }
+
+    /**
+     * Registers this ship as a candidate broodling-family spawn. type selects which of vanilla's four fixed
+     * broodling ids this entry competes against: "broodling" (223), "queen" (226), "darkQueen" (227), or
+     * "regular" (224, the plain brood variant).
+     */
+    public record BroodlingSpawn(String type, int weight) {
+    }
+
+    /**
+     * Registers this ship as a candidate lurker-family spawn. One shared pool covers every lurker
+     * sub-variant (normal, lurkerling, and lurker carrier) and every spawn method that can produce one,
+     * the same way vanilla's own police pool covers Cruiser/Carrier/Corvette through one spawnPolice(...).
+     */
+    public record LurkerSpawn(int weight) {
     }
 
     /**
@@ -290,13 +341,112 @@ public record ShipDefinition(int id, int icon, String color, String name, String
             );
         }
 
+        List<BlobSpawn> blob = new ArrayList<>();
+
+        JsonValue blobValue = registrationValue.getOrNull("blob");
+        if (blobValue != null && !blobValue.isNull()) {
+            for (JsonValue entry : blobValue.asArray()) {
+                int tier = entry.get("tier").asInt();
+                int weight = entry.getInt("weight", 1);
+
+                if (tier < 0 || tier > 5) {
+                    throw new JsonValue.JsonException("blob tier must be between 0 and 5");
+                }
+                if (weight < 1) {
+                    throw new JsonValue.JsonException("blob weight must be at least 1");
+                }
+                blob.add(new BlobSpawn(tier, weight));
+            }
+        }
+
+        BlobBossSpawn blobBoss = null;
+
+        JsonValue blobBossValue = registrationValue.getOrNull("blobBoss");
+        if (blobBossValue != null && !blobBossValue.isNull()) {
+            int weight = blobBossValue.getInt("weight", 1);
+
+            if (weight < 1) {
+                throw new JsonValue.JsonException("blobBoss weight must be at least 1");
+            }
+            blobBoss = new BlobBossSpawn(weight);
+        }
+
+        List<ShardSpawn> shard = new ArrayList<>();
+
+        JsonValue shardValue = registrationValue.getOrNull("shard");
+        if (shardValue != null && !shardValue.isNull()) {
+            for (JsonValue entry : shardValue.asArray()) {
+                int type = entry.get("type").asInt();
+                int weight = entry.getInt("weight", 1);
+
+                if (type < 0 || type > 5) {
+                    throw new JsonValue.JsonException("shard type must be between 0 and 5");
+                }
+                if (weight < 1) {
+                    throw new JsonValue.JsonException("shard weight must be at least 1");
+                }
+                shard.add(new ShardSpawn(type, weight));
+            }
+        }
+
+        List<ShardBossSpawn> shardBoss = new ArrayList<>();
+
+        JsonValue shardBossValue = registrationValue.getOrNull("shardBoss");
+        if (shardBossValue != null && !shardBossValue.isNull()) {
+            for (JsonValue entry : shardBossValue.asArray()) {
+                boolean darker = entry.getBoolean("darker", false);
+                int weight = entry.getInt("weight", 1);
+
+                if (weight < 1) {
+                    throw new JsonValue.JsonException("shardBoss weight must be at least 1");
+                }
+                shardBoss.add(new ShardBossSpawn(darker, weight));
+            }
+        }
+
+        List<BroodlingSpawn> broodling = new ArrayList<>();
+
+        JsonValue broodlingValue = registrationValue.getOrNull("broodling");
+        if (broodlingValue != null && !broodlingValue.isNull()) {
+            for (JsonValue entry : broodlingValue.asArray()) {
+                String type = entry.get("type").asString();
+                int weight = entry.getInt("weight", 1);
+
+                if (!type.equals("broodling") && !type.equals("queen") && !type.equals("darkQueen") && !type.equals("regular")) {
+                    throw new JsonValue.JsonException("broodling type must be one of: broodling, queen, darkQueen, regular");
+                }
+                if (weight < 1) {
+                    throw new JsonValue.JsonException("broodling weight must be at least 1");
+                }
+                broodling.add(new BroodlingSpawn(type, weight));
+            }
+        }
+
+        LurkerSpawn lurker = null;
+
+        JsonValue lurkerValue = registrationValue.getOrNull("lurker");
+        if (lurkerValue != null && !lurkerValue.isNull()) {
+            int weight = lurkerValue.getInt("weight", 1);
+
+            if (weight < 1) {
+                throw new JsonValue.JsonException("lurker weight must be at least 1");
+            }
+            lurker = new LurkerSpawn(weight);
+        }
+
         return new Registration(
                 market,
                 List.copyOf(npc),
                 List.copyOf(boss),
                 police,
                 List.copyOf(uniqueLoot),
-                rogueDrone
+                rogueDrone,
+                List.copyOf(blob),
+                blobBoss,
+                List.copyOf(shard),
+                List.copyOf(shardBoss),
+                List.copyOf(broodling),
+                lurker
         );
     }
 

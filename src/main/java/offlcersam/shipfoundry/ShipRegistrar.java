@@ -209,6 +209,30 @@ public final class ShipRegistrar {
         if (registration.rogueDrone() != null) {
             NPCRegistrar.registerRogueDrone(registration.rogueDrone(), def.id());
         }
+
+        for (ShipDefinition.BlobSpawn blob : registration.blob()) {
+            NPCRegistrar.registerBlob(blob.tier(), def.id(), blob.weight());
+        }
+
+        if (registration.blobBoss() != null) {
+            NPCRegistrar.registerBlobBoss(def.id(), registration.blobBoss().weight());
+        }
+
+        for (ShipDefinition.ShardSpawn shard : registration.shard()) {
+            NPCRegistrar.registerShard(shard.type(), def.id(), shard.weight());
+        }
+
+        for (ShipDefinition.ShardBossSpawn shardBoss : registration.shardBoss()) {
+            NPCRegistrar.registerShardBoss(shardBoss.darker(), def.id(), shardBoss.weight());
+        }
+
+        for (ShipDefinition.BroodlingSpawn broodling : registration.broodling()) {
+            NPCRegistrar.registerBroodling(broodling.type(), def.id(), broodling.weight());
+        }
+
+        if (registration.lurker() != null) {
+            NPCRegistrar.registerLurker(def.id(), registration.lurker().weight());
+        }
     }
 
     /**

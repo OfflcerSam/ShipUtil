@@ -63,6 +63,26 @@
       "creditMax": 600
     },
 
+    "blob": [
+      { "tier": 1, "weight": 1 }
+    ],
+
+    "blobBoss": { "weight": 1 },
+
+    "shard": [
+      { "type": 1, "weight": 1 }
+    ],
+
+    "shardBoss": [
+      { "darker": false, "weight": 1 }
+    ],
+
+    "broodling": [
+      { "type": "broodling", "weight": 1 }
+    ],
+
+    "lurker": { "weight": 1 },
+
     "uniqueLoot": [
       {
         "id": 20141,
