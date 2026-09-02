@@ -9,7 +9,7 @@ Be careful editing certain stats mid-playthrough, it could cause it to be techni
 
 Latest game version support: 0.6.0.0
 
-### Changelog Notes (Unreleased currently, will add changelog file later)
+### Changelog Notes (Some changes might be unreleased.)
 
 - `registration.market` changed from a plain boolean to an object, so buy/sell can be controlled
   independently - see [`market`](#market-optional). **This breaks any existing ship JSON using the old
@@ -20,6 +20,7 @@ Latest game version support: 0.6.0.0
   `debugItemGrantCharacterName`), same defaults as before so existing behavior doesn't change unless you edit the file.
 - Added an optional `lootTable` field - see [`lootTable`](#loottable-optional). Non-breaking (a ship simply
   isn't added to any drop pool if it's absent), and currently only covers rogue drone drops.
+- Added an optional `registration.rogueDrone` field - see [`rogueDrone`](#rogueDrone-optional). Non-breaking.
 
 ## Folder convention
 
@@ -270,13 +271,14 @@ So as you can see price can skyrocket if left to be automatic. Crafting recipes 
 Controls whether the ship shows up anywhere beyond just existing as a usable ship. Any sub-section left out simply isn't registered.
 A ship with no `"registration"` at all is loadable/usable but doesn't load to markets, NPC spawns, and crafting.
 
-| Field        | Type    | Notes                                                                                                                                                                                                                                                                                                                                                                                                                  |
-|--------------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `market`     | object  | Optional. If present, the ship is listed for buy/sell at any market matching station index 501 or 511, which are vanilla shipyards. (`MarketList`'s `shipyard.addStationIndices(501, 511)`) See [`market`](#market-optional) below.                                                                                                                                                                                    |
-| `npc`        | array   | Optional. Each entry is `{ "tier": #, "weight": # }`. Registers the ship as a candidate normal NPC spawn for that tier (0-5). `weight` is "tickets" relative to *one* vanilla-roll ticket for that tier - weight 1 makes it roughly as common as a single vanilla ship in that tier's pool, weight 2 about twice as likely, etc. A ship can appear in multiple tiers by listing multiple entries. Minimum weight is 1. |
-| `boss`       | array   | Optional. Each entry is `{ "sectorTier": #, "weight": # }`. Same weighting rule as `npc`, but for boss spawns in that sector tier (0-6, where 6 covers "6 or higher").                                                                                                                                                                                                                                                 |
-| `police`     | object  | Optional. `{ "weight": # }`. Registers the ship as a candidate for both single police spawns and grouped temp/escort police spawns. Not tiered as police spawns are not tier gated. Minimum weight is 1.                                                                                                                                                                                                               |
-| `uniqueLoot` | array   | Optional. Each entry is `{ "id": #, "amount": #, "chance": # }`. Extra item(s) this ship can drop when destroyed as an NPC/boss, **on top of** whatever generic loot it would already drop. `amount` defaults to `1`, `chance` is a plain 0-100 percentage defaulting to `100` (always drops).                                                                                                                         |
+| Field        | Type   | Notes                                                                                                                                                                                                                                                                                                                                                                                                                  |
+|--------------|--------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `market`     | object | Optional. If present, the ship is listed for buy/sell at any market matching station index 501 or 511, which are vanilla shipyards. (`MarketList`'s `shipyard.addStationIndices(501, 511)`) See [`market`](#market-optional) below.                                                                                                                                                                                    |
+| `npc`        | array  | Optional. Each entry is `{ "tier": #, "weight": # }`. Registers the ship as a candidate normal NPC spawn for that tier (0-5). `weight` is "tickets" relative to *one* vanilla-roll ticket for that tier - weight 1 makes it roughly as common as a single vanilla ship in that tier's pool, weight 2 about twice as likely, etc. A ship can appear in multiple tiers by listing multiple entries. Minimum weight is 1. |
+| `boss`       | array  | Optional. Each entry is `{ "sectorTier": #, "weight": # }`. Same weighting rule as `npc`, but for boss spawns in that sector tier (0-6, where 6 covers "6 or higher").                                                                                                                                                                                                                                                 |
+| `police`     | object | Optional. `{ "weight": # }`. Registers the ship as a candidate for both single police spawns and grouped temp/escort police spawns. Not tiered as police spawns are not tier gated. Minimum weight is 1.                                                                                                                                                                                                               |
+| `uniqueLoot` | array  | Optional. Each entry is `{ "id": #, "amount": #, "chance": # }`. Extra item(s) this ship can drop when destroyed as an NPC/boss, **on top of** whatever generic loot it would already drop. `amount` defaults to `1`, `chance` is a plain 0-100 percentage defaulting to `100` (always drops).                                                                                                                         |
+| `rogueDrone` | object | Optional. Registers the ship as a candidate rogue drone. See [`rogueDrone`](#rogueDrone-optional) below.                                                                                                                                                                                                                                                                                                               |
 
 `uniqueLoot` requires the item's ID like shown in recipe.
 
@@ -307,6 +309,47 @@ to `false` is the same as omitting `market` entirely since there'd be nothing le
 Unlike weapons/ammo, ships always use the dedicated `Localization.MARKET_UNIQUE_ITEM_TAG` ("Unique") market
 tag rather than whichever station type sells them, since ships are one-off unique items rather than regular
 restockable gear.
+
+### `rogueDrone` (optional)
+
+Nested inside `registration`. Registers the ship as a candidate rogue drone, competing against vanilla's own
+rogue drone ship ids (180-189) the same weighted way `npc`/`boss`/`police` do.
+
+```json
+"rogueDrone": {
+  "tier": 1,
+  "weight": 1,
+  "weaponLaser": 302620000,
+  "weaponBay": 306170000,
+  "energyFullID": 709020000,
+  "levelMin": 2,
+  "levelMax": 4,
+  "creditMin": 400,
+  "creditMax": 600
+}
+```
+
+| Field          | Type | Notes                                                                                          |
+|----------------|------|------------------------------------------------------------------------------------------------|
+| `tier`         | int  | Required, 0-4 (4 covers tier 4 or higher). Which roll bucket this ship competes in.            |
+| `weight`       | int  | Optional, defaults to `1`. Same "tickets relative to one vanilla ticket" rule as `npc`/`boss`. |
+| `weaponLaser`  | int  | Required. Item id equipped in roughly half the ship's weapon slots.                            |
+| `weaponBay`    | int  | Required. Item id equipped in the other half of the ship's weapon slots.                       |
+| `energyFullID` | int  | Required. Item id used to fill every energy slot.                                              |
+| `levelMin`     | int  | Required. Minimum NPC level (inclusive).                                                       |
+| `levelMax`     | int  | Required. Maximum NPC level (inclusive). Must be at least `levelMin`.                          |
+| `creditMin`    | int  | Required. Minimum credits carried (inclusive).                                                 |
+| `creditMax`    | int  | Required. Maximum credits carried (inclusive). Must be at least `creditMin`.                   |
+
+`configRogueDrone` equips gear by switching on the literal vanilla ship id (181-189) rather than
+by tier, unlike every other spawn type here which equips gear generically per-tier. There's no generic
+fallback to inherit for a custom id. Anything not in that switch just gets weak default gear (level 0-3,
+100-200 credits). `weaponLaser`/`weaponBay`/`energyFullID`/level/credit fields here are the same fields
+vanilla's own 9 presets set per id, so a custom rogue drone can be given a preset appropriate to its tier
+instead of the weak default. Look at `SpawnNPC.configRogueDrone`'s switch cases in a decompiler for vanilla's
+own values to use as reference points.
+
+This only covers rogue drones. Shard/blob/wraith/ancient spawning isn't registered through this.
 
 ### `recipe` (optional)
 
@@ -508,12 +551,13 @@ See [`ShipLootTablePatcher`](src/main/java/offlcersam/shipfoundry/ShipLootTableP
 ]
 ```
 
-| Field    | Type | Notes                                                                                                                          |
-|----------|------|--------------------------------------------------------------------------------------------------------------------------------|
-| `tier`   | int  | Required. Which rogue drone tier's drop pool to add this ship to - **0 to 4 only** (see note below).                           |
-| `weight` | int  | Optional, defaults to `1`. Treated directly as a percent chance (1-100) that a killed rogue drone of this tier drops the ship. |
+| Field    | Type | Notes                                                                                                                                             |
+|----------|------|---------------------------------------------------------------------------------------------------------------------------------------------------|
+| `tier`   | int  | Required. Which rogue drone tier's drop pool to add this ship to - **0 to 4 only**, since `loot_tables.sc` only defines tables for those 5 tiers. |
+| `weight` | int  | Optional, defaults to `1`. Treated directly as a percent chance (1-100) that a killed rogue drone of this tier drops the ship.                    |
 
-for rogue drones, might extend to blob and shardlets and any other ship drops that might exist.
+This only covers rogue drone drop pools right now. Shard mobs also have a data-driven drop table
+(`loot_tables.sc` indices 300-307) that ship items can be added to the same way, but that isn't wired up yet.
 
 ### `isStation` / `isPlatform` (optional)
 
@@ -545,25 +589,33 @@ LT_VIOLET, VIOLET, DK_VIOLET, LAVENDER, LT_LAVENDER, PURPLE, LT_PURPLE, DK_PURPL
 
 Vanilla IDs will most likely win, do not try to overwrite them. This is purely about avoiding id collisions with  real vanilla ships.
 
-Available IDs 1,699.
+Available IDs 1,681 as of 0.6.0.0 (used to be 1,699).
+
+Technically all IDs above 600 is Drones (if this code remains in vanilla), but ShipUtils changes this to all 1,681 available are usable as whatever.
+
+Stay below 1999 due to vanilla code anything 2000 and above will become null.
 
 ```
-write(): 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 35, 36, 37, 38, 39, 45,
-46, 47, 48, 49, 50, 51, 52, 90, 91, 92, 93, 94, 101, 102, 103, 104, 105, 106, 107, 108, 110, 111, 112, 113, 114, 115,
-116, 117, 118, 120, 121, 122, 123, 124, 125, 126, 127, 128, 130, 131, 132, 133, 134, 135, 136, 137, 138, 140, 141, 142,
-143, 144, 150, 151, 152, 153, 154, 160, 161, 162, 163, 164, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181,
-182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 200, 201, 202, 203, 204, 205, 206,
-207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 225, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251,
-252, 253, 254, 255, 256, 257, 258, 371, 372, 373, 374, 375, 376, 398.
+write():
+0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 35, 36, 37, 38, 39, 40, 41, 45, 46,
+47, 48, 49, 50, 51, 52, 90, 91, 92, 93, 94, 95, 101, 102, 103, 104, 105, 106, 107, 108, 110, 111, 112, 113, 114, 115, 116,
+117, 118, 120, 121, 122, 123, 124, 125, 126, 127, 128, 130, 131, 132, 133, 134, 135, 136, 137, 138, 140, 141, 142, 143,
+144, 150, 151, 152, 153, 154, 160, 161, 162, 163, 164, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181,
+182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205,
+206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 223, 224, 225, 226, 227, 228, 241, 242, 243,
+244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 256, 257, 258, 260, 261, 262, 263, 371, 372, 373, 374, 375,
+376, 398, 399
 
-writeStation(): 501, 502, 503, 504, 505, 506, 507, 508, 511, 512, 513, 514, 515, 516, 517, 520, 521, 522, 523, 524, 525,
-526, 530, 531, 532, 533, 534, 535, 536, 541, 542, 543, 544, 545, 546, 547, 548, 549, 551, 552, 553, 554, 556, 557, 561,
-562, 563, 564, 565, 566, 571, 572, 573, 574, 576, 577.
+writeStation():
+501, 502, 503, 504, 505, 506, 507, 508, 511, 512, 513, 514, 515, 516, 517, 520, 521, 522, 523, 524, 525, 526, 530, 531,
+532, 533, 534, 535, 536, 541, 542, 543, 544, 545, 546, 547, 548, 549, 551, 552, 553, 554, 556, 557, 561, 562, 563, 564,
+565, 566, 571, 572, 573, 574, 576, 577
 
-writeDrone(): 600, 601, 602, 603, 604, 606, 607, 608, 609, 611, 612, 613, 614, 616, 617, 618, 619, 621, 622, 623, 624,
-625, 626, 627, 628, 629, 630, 631, 632, 633, 650, 651, 660, 661, 699, 700, 701, 702, 703, 704, 706, 707, 708, 709, 710,
-711, 712, 713, 714, 715, 716, 717, 718, 719, 720, 721, 722, 723, 724, 725, 726, 771, 772, 773, 774, 775, 776, 798, 800,
-801, 802, 803, 810, 811, 812, 813, 900, 910.
+writeDrone():
+600, 601, 602, 603, 604, 605, 606, 607, 608, 609, 611, 612, 613, 614, 616, 617, 618, 619, 621, 622, 623, 624, 625, 626,
+627, 628, 629, 630, 631, 632, 633, 650, 651, 660, 661, 699, 700, 701, 702, 703, 704, 706, 707, 708, 709, 710, 711, 712,
+713, 714, 715, 716, 717, 718, 719, 720, 721, 722, 723, 724, 725, 726, 771, 772, 773, 774, 775, 776, 798, 800, 801, 802,
+803, 810, 811, 812, 813, 900, 910
 ```
 
 ## Ship textures
@@ -576,6 +628,10 @@ automatically during loading, so drop-in-a-folder works for sprites as well inst
 
 - Recipe ingredient/blueprint IDs are raw database item ids (e.g. `100001`, `10702`) as I have not put in name-based lookup yet.
   To get the recipe IDs, I recommend looking through CraftingTableNormal using a decompiler like JADX.
+- Blob and shard mobs (non-boss) spawning aren't registrable. Both spawn a single fixed ship id per
+  tier/region rather than rolling from a pool, so `npc`/`boss`/`rogueDrone`'s weighted-registration
+  mechanism has nothing to compete against for them. Wraith/Ancient encounters are POI-structure-based
+  (fixed, hand-placed layouts rather than a spawn pool) and are being held off for now.
 
 ## Config
 
@@ -592,7 +648,7 @@ Comment lines starting with `#` are safe to read but not meant to be edited.
 ## Setup
 
 `ships/ShipSample/arrowhead.json` recreates ShipTest's original Arrowhead as JSON, using id `1000` and exercising every optional section above:
-market listing, tier-0 NPC spawn, a sector-tier-0 boss spawn, a police spawn, a couple of unique loot drops, its original crafting recipe, a couple of `shipStats` bonuses, an inbuilt Booster device, and a tier-0 `lootTable` entry. `ship_base_1000.png` sits alongside it as the matching sprite.
+market listing, tier-0 NPC spawn, a sector-tier-0 boss spawn, a police spawn, a tier-1 rogue drone registration, a couple of unique loot drops, its original crafting recipe, a couple of `shipStats` bonuses, an inbuilt Booster device, and a tier-0 `lootTable` entry. `ship_base_1000.png` sits alongside it as the matching sprite.
 
 Copy the `ShipSample` folder to `<gameDirectory>/ships/` to try it. If ships folder doesn't exist create it.
 

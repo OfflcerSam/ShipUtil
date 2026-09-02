@@ -19,7 +19,7 @@ public final class JsonValue {
     private final boolean boolValue;
 
     private JsonValue(Type type, Map<String, JsonValue> object, List<JsonValue> array,
-                       String stringValue, double numberValue, boolean boolValue) {
+                      String stringValue, double numberValue, boolean boolValue) {
         this.type = type;
         this.object = object;
         this.array = array;
@@ -109,6 +109,10 @@ public final class JsonValue {
 
     public float asFloat() {
         return (float) asDouble();
+    }
+
+    public long asLong() {
+        return (long) asDouble();
     }
 
     public boolean asBoolean() {

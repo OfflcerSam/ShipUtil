@@ -6,6 +6,7 @@
   "mixins": [
     "MainSetupMixin",
     "SpawnNPCMixin",
+    "SpawnNPCAccessor",
     "GraphicsLoaderMixin",
     "CraftingTableMixin",
     "PlayerMixin",

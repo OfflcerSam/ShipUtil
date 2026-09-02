@@ -205,6 +205,10 @@ public final class ShipRegistrar {
             UNIQUE_LOOT.put(def.id(), registration.uniqueLoot());
             SSFMLLogger.log("[ShipFoundry] Registered " + registration.uniqueLoot().size() + " unique loot drop(s) for ship " + def.name());
         }
+
+        if (registration.rogueDrone() != null) {
+            NPCRegistrar.registerRogueDrone(registration.rogueDrone(), def.id());
+        }
     }
 
     /**

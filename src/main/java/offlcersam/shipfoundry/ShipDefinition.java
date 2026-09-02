@@ -23,11 +23,11 @@ public record ShipDefinition(int id, int icon, String color, String name, String
      * Sections that are not present in the JSON are simply not registered.
      */
     public record Registration(MarketOptions market, List<NpcSpawn> npc, List<BossSpawn> boss, PoliceSpawn police,
-                               List<UniqueLootDrop> uniqueLoot) {
+                               List<UniqueLootDrop> uniqueLoot, RogueDroneSpawn rogueDrone) {
 
         // Returns an empty registration configuration.
         public static Registration empty() {
-            return new Registration(null, List.of(), List.of(), null, List.of());
+            return new Registration(null, List.of(), List.of(), null, List.of(), null);
         }
     }
 
@@ -47,6 +47,22 @@ public record ShipDefinition(int id, int icon, String color, String name, String
      * Registers this ship as a police spawn.
      */
     public record PoliceSpawn(int weight) {
+    }
+
+    /**
+     * Registers this ship as a rogue drone.
+     * <p>
+     * Unlike npc/boss/police, vanilla's own rogue drone spawn code (SpawnNPC.configRogueDrone) equips gear by
+     * switching on the literal vanilla ship id (181-189) rather than by tier, so there's no generic per-tier
+     * gear table to fall back on for a custom id - anything not in that switch just gets weak default gear.
+     * These fields are vanilla's own per-id preset values (weapon/energy item ids, level range, credit range)
+     * so a custom rogue drone can be given a preset appropriate to its tier instead of that default.
+     * <p>
+     * tier picks which roll bucket (0-4, where 4 covers tier 4 or higher) this ship competes in - see
+     * NPCRegistrar's rogue drone bucket sizes for the vanilla ticket counts per bucket.
+     */
+    public record RogueDroneSpawn(int tier, int weight, int weaponLaser, int weaponBay, int energyFullID,
+                                  int levelMin, int levelMax, long creditMin, long creditMax) {
     }
 
     /**
@@ -239,12 +255,48 @@ public record ShipDefinition(int id, int icon, String color, String name, String
             }
         }
 
+        RogueDroneSpawn rogueDrone = null;
+
+        JsonValue rogueDroneValue = registrationValue.getOrNull("rogueDrone");
+        if (rogueDroneValue != null && !rogueDroneValue.isNull()) {
+            int tier = rogueDroneValue.get("tier").asInt();
+            int weight = rogueDroneValue.getInt("weight", 1);
+            int weaponLaser = rogueDroneValue.get("weaponLaser").asInt();
+            int weaponBay = rogueDroneValue.get("weaponBay").asInt();
+            int energyFullID = rogueDroneValue.get("energyFullID").asInt();
+            int levelMin = rogueDroneValue.get("levelMin").asInt();
+            int levelMax = rogueDroneValue.get("levelMax").asInt();
+            long creditMin = rogueDroneValue.get("creditMin").asLong();
+            long creditMax = rogueDroneValue.get("creditMax").asLong();
+
+            if (tier < 0 || tier > 4) {
+                throw new JsonValue.JsonException("rogueDrone tier must be between 0 and 4");
+            }
+
+            if (weight < 1) {
+                throw new JsonValue.JsonException("rogueDrone weight must be at least 1");
+            }
+
+            if (levelMin > levelMax) {
+                throw new JsonValue.JsonException("rogueDrone levelMin must not be greater than levelMax");
+            }
+
+            if (creditMin > creditMax) {
+                throw new JsonValue.JsonException("rogueDrone creditMin must not be greater than creditMax");
+            }
+
+            rogueDrone = new RogueDroneSpawn(
+                    tier, weight, weaponLaser, weaponBay, energyFullID, levelMin, levelMax, creditMin, creditMax
+            );
+        }
+
         return new Registration(
                 market,
                 List.copyOf(npc),
                 List.copyOf(boss),
                 police,
-                List.copyOf(uniqueLoot)
+                List.copyOf(uniqueLoot),
+                rogueDrone
         );
     }
 

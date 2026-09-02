@@ -51,6 +51,18 @@
 
     "police": { "weight": 1 },
 
+    "rogueDrone": {
+      "tier": 1,
+      "weight": 1,
+      "weaponLaser": 302620000,
+      "weaponBay": 306170000,
+      "energyFullID": 709020000,
+      "levelMin": 2,
+      "levelMax": 4,
+      "creditMin": 400,
+      "creditMax": 600
+    },
+
     "uniqueLoot": [
       {
         "id": 20141,
