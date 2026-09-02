@@ -106,6 +106,10 @@ public final class ShipUtilLoader {
                 "[ShipFoundry] Loaded " + totalLoaded
                         + " ship(s) total from " + shipsRoot
         );
+
+        if (totalLoaded > 0) {
+            ShipLootTablePatcher.patch();
+        }
     }
 
     private static int loadModFolder(Path modFolder, List<ShipDefinition> loadedShips) {

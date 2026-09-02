@@ -9,7 +9,7 @@ Be careful editing certain stats mid-playthrough, it could cause it to be techni
 
 Latest game version support: 0.6.0.0
 
-### Changelog Notes (Released currently, will add changelog file later)
+### Changelog Notes (Unreleased currently, will add changelog file later)
 
 - `registration.market` changed from a plain boolean to an object, so buy/sell can be controlled
   independently - see [`market`](#market-optional). **This breaks any existing ship JSON using the old
@@ -18,6 +18,8 @@ Latest game version support: 0.6.0.0
   API - see [Config](#config). The debug-item-grant toggle and debug character name are no longer hardcoded
   constants in `DebugItemGrant`; they're config options now (`debugItemGrantEnabled` /
   `debugItemGrantCharacterName`), same defaults as before so existing behavior doesn't change unless you edit the file.
+- Added an optional `lootTable` field - see [`lootTable`](#loottable-optional). Non-breaking (a ship simply
+  isn't added to any drop pool if it's absent), and currently only covers rogue drone drops.
 
 ## Folder convention
 
@@ -493,6 +495,26 @@ These IDs are ShipFoundry's data-driven representation of the game's built-in un
 
 Unknown IDs are ignored by the game-specific implementation and produce a ShipFoundry warning in the log.
 
+### `lootTable` (optional)
+
+Makes this ship's item droppable from rogue drones of a given tier, on top of whatever generic loot they'd
+already drop. Patched directly into the game's own data-driven `loot_tables.sc` at boot, the same way
+WeaponFoundry patches weapon/ammo drops into `gear_tables.sc`/`loot_tables.sc`.
+See [`ShipLootTablePatcher`](src/main/java/offlcersam/shipfoundry/ShipLootTablePatcher.java) for the mechanics.
+
+```json
+"lootTable": [
+  { "tier": 0, "weight": 5 }
+]
+```
+
+| Field    | Type | Notes                                                                                                                          |
+|----------|------|--------------------------------------------------------------------------------------------------------------------------------|
+| `tier`   | int  | Required. Which rogue drone tier's drop pool to add this ship to - **0 to 4 only** (see note below).                           |
+| `weight` | int  | Optional, defaults to `1`. Treated directly as a percent chance (1-100) that a killed rogue drone of this tier drops the ship. |
+
+for rogue drones, might extend to blob and shardlets and any other ship drops that might exist.
+
 ### `isStation` / `isPlatform` (optional)
 
 Both default to `false` (a normal ship) and can't both be `true` on the same ship. Vanilla itself decides whether a ship is a normal ship, station, or platform
@@ -523,33 +545,25 @@ LT_VIOLET, VIOLET, DK_VIOLET, LAVENDER, LT_LAVENDER, PURPLE, LT_PURPLE, DK_PURPL
 
 Vanilla IDs will most likely win, do not try to overwrite them. This is purely about avoiding id collisions with  real vanilla ships.
 
-Available IDs 1,681 as of 0.6.0.0 (used to be 1,699).
-
-Technically all IDs above 600 is Drones (if this code remains in vanilla), but ShipUtils changes this to all 1,681 available are usable as whatever.
-
-Stay below 1999 due to vanilla code anything 2000 and above will become null.
+Available IDs 1,699.
 
 ```
-write():
-0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 35, 36, 37, 38, 39, 40, 41, 45, 46,
-47, 48, 49, 50, 51, 52, 90, 91, 92, 93, 94, 95, 101, 102, 103, 104, 105, 106, 107, 108, 110, 111, 112, 113, 114, 115, 116,
-117, 118, 120, 121, 122, 123, 124, 125, 126, 127, 128, 130, 131, 132, 133, 134, 135, 136, 137, 138, 140, 141, 142, 143,
-144, 150, 151, 152, 153, 154, 160, 161, 162, 163, 164, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181,
-182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205,
-206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 223, 224, 225, 226, 227, 228, 241, 242, 243,
-244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 256, 257, 258, 260, 261, 262, 263, 371, 372, 373, 374, 375,
-376, 398, 399
+write(): 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 35, 36, 37, 38, 39, 45,
+46, 47, 48, 49, 50, 51, 52, 90, 91, 92, 93, 94, 101, 102, 103, 104, 105, 106, 107, 108, 110, 111, 112, 113, 114, 115,
+116, 117, 118, 120, 121, 122, 123, 124, 125, 126, 127, 128, 130, 131, 132, 133, 134, 135, 136, 137, 138, 140, 141, 142,
+143, 144, 150, 151, 152, 153, 154, 160, 161, 162, 163, 164, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181,
+182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 200, 201, 202, 203, 204, 205, 206,
+207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 225, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251,
+252, 253, 254, 255, 256, 257, 258, 371, 372, 373, 374, 375, 376, 398.
 
-writeStation():
-501, 502, 503, 504, 505, 506, 507, 508, 511, 512, 513, 514, 515, 516, 517, 520, 521, 522, 523, 524, 525, 526, 530, 531,
-532, 533, 534, 535, 536, 541, 542, 543, 544, 545, 546, 547, 548, 549, 551, 552, 553, 554, 556, 557, 561, 562, 563, 564,
-565, 566, 571, 572, 573, 574, 576, 577
+writeStation(): 501, 502, 503, 504, 505, 506, 507, 508, 511, 512, 513, 514, 515, 516, 517, 520, 521, 522, 523, 524, 525,
+526, 530, 531, 532, 533, 534, 535, 536, 541, 542, 543, 544, 545, 546, 547, 548, 549, 551, 552, 553, 554, 556, 557, 561,
+562, 563, 564, 565, 566, 571, 572, 573, 574, 576, 577.
 
-writeDrone():
-600, 601, 602, 603, 604, 605, 606, 607, 608, 609, 611, 612, 613, 614, 616, 617, 618, 619, 621, 622, 623, 624, 625, 626,
-627, 628, 629, 630, 631, 632, 633, 650, 651, 660, 661, 699, 700, 701, 702, 703, 704, 706, 707, 708, 709, 710, 711, 712,
-713, 714, 715, 716, 717, 718, 719, 720, 721, 722, 723, 724, 725, 726, 771, 772, 773, 774, 775, 776, 798, 800, 801, 802,
-803, 810, 811, 812, 813, 900, 910
+writeDrone(): 600, 601, 602, 603, 604, 606, 607, 608, 609, 611, 612, 613, 614, 616, 617, 618, 619, 621, 622, 623, 624,
+625, 626, 627, 628, 629, 630, 631, 632, 633, 650, 651, 660, 661, 699, 700, 701, 702, 703, 704, 706, 707, 708, 709, 710,
+711, 712, 713, 714, 715, 716, 717, 718, 719, 720, 721, 722, 723, 724, 725, 726, 771, 772, 773, 774, 775, 776, 798, 800,
+801, 802, 803, 810, 811, 812, 813, 900, 910.
 ```
 
 ## Ship textures
@@ -578,7 +592,7 @@ Comment lines starting with `#` are safe to read but not meant to be edited.
 ## Setup
 
 `ships/ShipSample/arrowhead.json` recreates ShipTest's original Arrowhead as JSON, using id `1000` and exercising every optional section above:
-market listing, tier-0 NPC spawn, a sector-tier-0 boss spawn, a police spawn, a couple of unique loot drops, its original crafting recipe, a couple of `shipStats` bonuses, and an inbuilt Booster device. `ship_base_1000.png` sits alongside it as the matching sprite.
+market listing, tier-0 NPC spawn, a sector-tier-0 boss spawn, a police spawn, a couple of unique loot drops, its original crafting recipe, a couple of `shipStats` bonuses, an inbuilt Booster device, and a tier-0 `lootTable` entry. `ship_base_1000.png` sits alongside it as the matching sprite.
 
 Copy the `ShipSample` folder to `<gameDirectory>/ships/` to try it. If ships folder doesn't exist create it.
 

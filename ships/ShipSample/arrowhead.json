@@ -85,6 +85,10 @@
 
   "builtInDevices": [ 960 ],
 
+  "lootTable": [
+    { "tier": 0, "weight": 5 }
+  ],
+
   "isStation": false,
   "isPlatform": false
 }

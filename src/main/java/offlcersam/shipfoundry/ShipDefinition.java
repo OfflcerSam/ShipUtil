@@ -13,7 +13,7 @@ public record ShipDefinition(int id, int icon, String color, String name, String
                              List<TurretSlot> weaponLayout, String vanillaWeaponLayout, int energySlots, int armorSlots, int shieldSlots,
                              int deviceSlots, int moduleSlots, int engineSlots,
                              Registration registration, Recipe recipe, List<ShipStat> shipStats, List<Integer> builtInDevices,
-                             boolean isStation, boolean isPlatform) {
+                             List<ShipLootEntry> lootTable, boolean isStation, boolean isPlatform) {
 
     public record TurretSlot(double angle, double distance) {
     }
@@ -122,6 +122,7 @@ public record ShipDefinition(int id, int icon, String color, String name, String
         Recipe recipe = parseRecipe(root);
         List<ShipStat> shipStats = parseShipStats(root);
         List<Integer> builtInDevices = parseBuiltInDevices(root);
+        List<ShipLootEntry> lootTable = ShipLootEntry.parseList(root);
 
         boolean isStation = root.getBoolean("isStation", false);
         boolean isPlatform = root.getBoolean("isPlatform", false);
@@ -154,6 +155,7 @@ public record ShipDefinition(int id, int icon, String color, String name, String
                 recipe,
                 shipStats,
                 builtInDevices,
+                lootTable,
                 isStation,
                 isPlatform
         );
