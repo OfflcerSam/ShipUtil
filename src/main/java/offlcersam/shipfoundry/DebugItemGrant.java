@@ -6,24 +6,19 @@ import game.Player;
 
 /*
     Grants ships to a debug character's cargo hold on load, driven off the JSON registry:
-        - character name "STEST" (case-insensitive) grants every successfully registered ShipFoundry JSON ship.
+        - character name matching config's debugItemGrantCharacterName (case-insensitive, "STEST" by
+          default) grants every successfully registered ShipFoundry JSON ship.
         - any other character name that matches a ships/<name>/ folder name (case-insensitive) grants only
           that folder's registered ships.
         - any other character name does nothing (duh).
 */
 public final class DebugItemGrant {
 
-    // Set to true to automatically deposit the ships when loading your character.
-    // Maybe make into config option if a config manager is made.
-    private static final boolean ENABLE_DEBUG_GRANT = true;
-
-    private static final String DEBUG_CHARACTER_NAME_ALL = "STEST";
-
     private DebugItemGrant() {
     }
 
     public static void grantShipsToDebugCharacter() {
-        if (!ENABLE_DEBUG_GRANT) {
+        if (!ShipFoundryConfig.debugItemGrantEnabled()) {
             return;
         }
 
@@ -36,7 +31,7 @@ public final class DebugItemGrant {
         int[] databaseIds;
         String grantLabel;
 
-        if (DEBUG_CHARACTER_NAME_ALL.equalsIgnoreCase(characterName)) {
+        if (ShipFoundryConfig.debugItemGrantCharacterName().equalsIgnoreCase(characterName)) {
             databaseIds = ShipRegistrar.getShipDatabaseIDs();
             grantLabel = "all registered ships";
         } else {
@@ -53,7 +48,7 @@ public final class DebugItemGrant {
         }
 
         if (Player.ship == null || Player.ship.cargo == null) {
-            SSFMLLogger.log("[ShipFoundry] Player ship/cargo not loaded, cannot grant ships.");
+            SSFMLLogger.log("[ShipFoundry] DebugItemGrant: player ship/cargo not loaded; cannot grant ships.");
             return;
         }
 

@@ -50,6 +50,8 @@ public final class ShipUtilLoader {
         }
         loaded = true;
 
+        ShipFoundryConfig.load();
+
         Path gameDir = FabricLoader.getInstance().getGameDir();
         Path shipsRoot = gameDir.resolve(SHIPS_FOLDER_NAME);
 
@@ -67,6 +69,16 @@ public final class ShipUtilLoader {
 
         try (Stream<Path> modFolders = Files.list(shipsRoot)) {
             for (Path modFolder : modFolders.filter(Files::isDirectory).toList()) {
+                String modName = modFolder.getFileName().toString();
+
+                if (!ShipFoundryConfig.isPackEnabled(modName)) {
+                    SSFMLLogger.log(
+                            "[ShipFoundry] Skipping pack \"" + modName
+                                    + "\" - not in this mod's enabledPacks config."
+                    );
+                    continue;
+                }
+
                 totalLoaded += loadModFolder(modFolder, loadedShips);
             }
         } catch (IOException e) {

@@ -14,6 +14,10 @@ Latest game version support: 0.6.0.0
 - `registration.market` changed from a plain boolean to an object, so buy/sell can be controlled
   independently - see [`market`](#market-optional). **This breaks any existing ship JSON using the old
   `"market": true/false` boolean** - update to the object form shown below.
+- Added a config file (`<gameDirectory>/config/shipfoundry/shipfoundry.cfg`), backed by SSFML's new config
+  API - see [Config](#config). The debug-item-grant toggle and debug character name are no longer hardcoded
+  constants in `DebugItemGrant`; they're config options now (`debugItemGrantEnabled` /
+  `debugItemGrantCharacterName`), same defaults as before so existing behavior doesn't change unless you edit the file.
 
 ## Folder convention
 
@@ -276,8 +280,7 @@ A ship with no `"registration"` at all is loadable/usable but doesn't load to ma
 
 ### `market` (optional)
 
-Nested inside `registration`. Omitting this field entirely means the ship isn't listed in any market at
-all.
+Nested inside `registration`. Omitting this field entirely means the ship isn't listed in any market at all.
 
 ```json
 "market": {
@@ -552,6 +555,18 @@ automatically during loading, so drop-in-a-folder works for sprites as well inst
 - Recipe ingredient/blueprint IDs are raw database item ids (e.g. `100001`, `10702`) as I have not put in name-based lookup yet.
   To get the recipe IDs, I recommend looking through CraftingTableNormal using a decompiler like JADX.
 
+## Config
+
+ShipFoundry's settings live at `<gameDirectory>/config/shipfoundry/shipfoundry.cfg`, generated on first load via SSFML's config API.
+Comment lines starting with `#` are safe to read but not meant to be edited.
+
+| Key                           | Default | Notes                                                                                                                                                                  |
+|-------------------------------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `enabledPacks`                | (blank) | Comma-separated `ships/` subfolder names to load. Blank means load every pack found, same as before this option existed.                                               |
+| `debugLogging`                | `false` | When `true`, logs one line per ship/market listing registered, instead of just per-pack and per-boot summaries.                                                        |
+| `debugItemGrantEnabled`       | `true`  | Whether loading a character whose name matches `debugItemGrantCharacterName` or a pack folder name grants ships to their cargo hold at all. See [Setup](#setup) below. |
+| `debugItemGrantCharacterName` | `STEST` | Character save name that grants every registered ship (case-insensitive). Named `ships/<name>/` folders keep working independently of this value.                      |
+
 ## Setup
 
 `ships/ShipSample/arrowhead.json` recreates ShipTest's original Arrowhead as JSON, using id `1000` and exercising every optional section above:
@@ -559,4 +574,4 @@ market listing, tier-0 NPC spawn, a sector-tier-0 boss spawn, a police spawn, a 
 
 Copy the `ShipSample` folder to `<gameDirectory>/ships/` to try it. If ships folder doesn't exist create it.
 
-Use `STEST` on character save name to get all ships on load. Otherwise, use the folder name for that folder's ships on load.
+Use `STEST` on character save name to get all ships on load (configurable via `debugItemGrantCharacterName`). Otherwise, use the folder name for that folder's ships on load.

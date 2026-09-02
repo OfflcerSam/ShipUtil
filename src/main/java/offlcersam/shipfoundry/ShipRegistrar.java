@@ -59,7 +59,7 @@ public final class ShipRegistrar {
     /** Registers a ship ID and remembers it for later use. */
     private static int registerShipID(int id) {
         REGISTERED_SHIP_IDS.add(id);
-        SSFMLLogger.log("[ShipFoundry] Added ship ID to registry: " + id);
+        ShipFoundryConfig.debug("[ShipFoundry] Added ship ID to registry: " + id);
         return id;
     }
 
@@ -160,7 +160,7 @@ public final class ShipRegistrar {
         if (def.registration().market() != null) {
             MarketOptions market = def.registration().market();
             MARKET_SHIP_LISTINGS.add(new MarketListing(toDatabaseID(def.id()), market.produce(), market.consume()));
-            SSFMLLogger.log(
+            ShipFoundryConfig.debug(
                     "[ShipFoundry] Registered ship " + def.name()
                             + " for market listings (produce=" + market.produce()
                             + ", consume=" + market.consume() + ")"
@@ -169,7 +169,7 @@ public final class ShipRegistrar {
 
         LOADED_SHIPS.add(def);
 
-        SSFMLLogger.log("[ShipFoundry] Registered ship " + def.name() + " (id: " + def.id() + ")");
+        ShipFoundryConfig.debug("[ShipFoundry] Registered ship " + def.name() + " (id: " + def.id() + ")");
     }
 
     /**
