@@ -1,9 +1,9 @@
 package offlcersam.shipfoundry.mixin;
 
+import com.sector.bridge.SSFMLLogger;
 import game.objects.SpaceShip;
 import game.shiputils.DeviceUpdater;
 import items.actions.UniqueDevice;
-import mods.ModLogger;
 import offlcersam.shipfoundry.ShipRegistrar;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -57,7 +57,7 @@ public class UniqueDeviceMixin {
                 case 994: UniqueDevice.addUniqueFighterOverclock(4, null); break;
                 case 995: UniqueDevice.addUniqueFighterOverclock(4, null); break;
                 default: {
-                    ModLogger.log(
+                    SSFMLLogger.log(
                             "[ShipFoundry] Unknown built-in device id " + deviceId + " on ship " + shipIndex
                                     + " - see DeviceList's overclock-granting cases for the current valid id list "
                                     + "(920-925 platform, 960-965 engine, 970-976/720-723 offensive, "
