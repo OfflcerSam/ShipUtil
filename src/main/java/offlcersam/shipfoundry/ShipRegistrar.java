@@ -158,8 +158,6 @@ public final class ShipRegistrar {
                 def.deviceSlots(),
                 def.moduleSlots(),
                 def.engineSlots(),
-                // blacklistTrade, greylistTrade - new in 0.6.0.0. Vanilla passes true for rogue-AI "Drone" ships
-                // to exclude them from normal trade; every ShipFoundry ship defaults to a normal tradeable ship.
                 false,
                 false
         );

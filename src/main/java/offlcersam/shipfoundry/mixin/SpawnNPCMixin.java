@@ -12,8 +12,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-// Sector Space 0.6.0.0 moved SpawnNPC and SpawnMacro from _database to game.spawns as part of the
-// "Encounters spawning system rewrite" - see MainSetupMixin/ShipRegistrar for the other 0.6.0.0 breakages.
 @Mixin(value = SpawnNPC.class, remap = false)
 public class SpawnNPCMixin {
 
