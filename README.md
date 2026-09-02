@@ -7,7 +7,7 @@ Requires my fork of [SSFML](https://github.com/OfflcerSam/SectorSpaceFabricModLo
 
 Be careful editing certain stats mid-playthrough, it could cause it to be technically a separate item and make the original null.
 
-Latest game version support: 0.5.9.6
+Latest game version support: 0.6.0.0
 
 ## Folder convention
 
@@ -408,6 +408,49 @@ into your own `"description"` field yourself, same as vanilla does.
 | `960` `961` `962` `963` | `hasBooster` / `hasBetterBooster` / `hasBestBooster` / `hasBestestBooster` | Booster tiers 1-4.               |
 | `970` `971` `972` `973` | `hasOffLevel1` - `hasOffLevel4`                                            | Offensive Coprocessor tiers 1-4. |
 | `980` `981` `982` `983` | `hasDefLevel1` - `hasDefLevel4`                                            | Defensive Coprocessor tiers 1-4. |
+
+### `builtInDevices`
+
+Optional array of built-in device IDs to apply to the ship when its unique devices are compiled.
+
+If you want your ship's description to say that it has a named Inbuilt (e.g. "Inbuilt: Booster, "), 
+you need to type that into your own "description" field yourself, same as vanilla does.
+
+Currently supported IDs:
+| ID            | Effect                  |
+|---------------|-------------------------|
+| `920`         | Platform Overclock I    |
+| `921`         | Platform Overclock II   |
+| `922`         | Platform Overclock III  |
+| `923`         | Platform Overclock III  |
+| `924`         | Platform Overclock IV   |
+| `925`         | Platform Overclock IV   |
+| `960`         | Engine Overclock I      |
+| `961`         | Engine Overclock II     |
+| `962`         | Engine Overclock III    |
+| `963`         | Engine Overclock III    |
+| `964`         | Engine Overclock IV     |
+| `965`         | Engine Overclock IV     |
+| `970` / `720` | Offensive Overclock I   |
+| `971` / `721` | Offensive Overclock II  |
+| `972` / `722` | Offensive Overclock III |
+| `973` / `723` | Offensive Overclock III |
+| `974`–`976`   | Offensive Overclock IV  |
+| `980` / `730` | Defensive Overclock I   |
+| `981` / `731` | Defensive Overclock II  |
+| `982` / `732` | Defensive Overclock III |
+| `983` / `733` | Defensive Overclock III |
+| `984`–`985`   | Defensive Overclock IV  |
+| `990`         | Fighter Overclock I     |
+| `991`         | Fighter Overclock II    |
+| `992`         | Fighter Overclock III   |
+| `993`         | Fighter Overclock III   |
+| `994`         | Fighter Overclock IV    |
+| `995`         | Fighter Overclock IV    |
+
+These IDs are ShipFoundry's data-driven representation of the game's built-in unique-device/overclock effects. They are applied when the game's `UniqueDevice.compile()` method runs.
+
+Unknown IDs are ignored by the game-specific implementation and produce a ShipFoundry warning in the log.
 
 ### `isStation` / `isPlatform` (optional)
 

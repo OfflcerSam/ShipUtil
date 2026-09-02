@@ -11,9 +11,8 @@ import java.util.Map;
 
 /*
 Populated from the ship JSON's "registration" section via ShipRegistrar.registerSpawnSettings() - see ShipDefinition.
- */
+*/
 public final class NPCRegistrar {
-
     // tier (0-5) -> pool of custom ship base IDs
     private static final Map<Integer, List<Integer>> MOB_POOL = new HashMap<>();
 
@@ -79,9 +78,14 @@ public final class NPCRegistrar {
         if (pool == null || pool.isEmpty()) {
             return vanillaShipId;
         }
-        int vanillaTickets = VANILLA_MOB_POOL_SIZE[Math.max(0, Math.min(tier, VANILLA_MOB_POOL_SIZE.length - 1))];
+
+        int vanillaTickets = VANILLA_MOB_POOL_SIZE[
+                Math.max(0, Math.min(tier, VANILLA_MOB_POOL_SIZE.length - 1))
+                ];
+
         int totalTickets = vanillaTickets + pool.size();
         int roll = rng().nextInt(totalTickets);
+
         return roll < vanillaTickets ? vanillaShipId : pool.get(roll - vanillaTickets);
     }
 
@@ -91,9 +95,14 @@ public final class NPCRegistrar {
         if (pool == null || pool.isEmpty()) {
             return vanillaShipId;
         }
-        int vanillaTickets = VANILLA_BOSS_POOL_SIZE[Math.max(0, Math.min(sectorTier, VANILLA_BOSS_POOL_SIZE.length - 1))];
+
+        int vanillaTickets = VANILLA_BOSS_POOL_SIZE[
+                Math.max(0, Math.min(sectorTier, VANILLA_BOSS_POOL_SIZE.length - 1))
+                ];
+
         int totalTickets = vanillaTickets + pool.size();
         int roll = rng().nextInt(totalTickets);
+
         return roll < vanillaTickets ? vanillaShipId : pool.get(roll - vanillaTickets);
     }
 
@@ -117,6 +126,7 @@ public final class NPCRegistrar {
         }
         int totalTickets = VANILLA_POLICE_POOL_SIZE + POLICE_POOL.size();
         int roll = rng().nextInt(totalTickets);
+
         return roll < VANILLA_POLICE_POOL_SIZE ? vanillaShipId : POLICE_POOL.get(roll - VANILLA_POLICE_POOL_SIZE);
     }
 
