@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(value = SpawnNPC.class, remap = false)
 public class SpawnNPCMixin {
 
-    // TIERED NPC SPAWNING - spawnTieredMob's own signature is unchanged in 0.6.0.0, only the package moved.
+    // TIERED NPC SPAWNING
     @Inject(
             method = "spawnTieredMob(IIILgame/world/Sector;ZIIZII)Lilluminatus/core/datastructures/List;",
             at = @At("HEAD")
@@ -56,7 +56,7 @@ public class SpawnNPCMixin {
         return SpawnMacro.generateShip(xPos, yPos, sector, hostilityConstant, rolled, factionIndex);
     }
 
-    // BOSS SPAWNING - spawnBoss's own signature is unchanged in 0.6.0.0, only the package moved.
+    // BOSS SPAWNING
     @Redirect(
             method = "spawnBoss(Lgame/world/Sector;I)V",
             at = @At(
