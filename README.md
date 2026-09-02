@@ -524,7 +524,7 @@ LT_VIOLET, VIOLET, DK_VIOLET, LAVENDER, LT_LAVENDER, PURPLE, LT_PURPLE, DK_PURPL
 Vanilla IDs will most likely win, do not try to overwrite them. This is purely about avoiding id collisions with  real vanilla ships.
 
 Available IDs 1,681 as of 0.6.0.0 (used to be 1,699)
-Technically all IDs above 600 is Drones (if this code remains in vanilla), but ShipUtils changes this to all 1,699 available are usable.
+Technically all IDs above 600 is Drones (if this code remains in vanilla), but ShipUtils changes this to all 1,681 available are usable as whatever.
 
 ```
 write():
