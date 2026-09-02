@@ -1,8 +1,8 @@
 package offlcersam.shipfoundry.mixin;
 
+import com.sector.bridge.SSFMLLogger;
 import crafting.CraftingTable;
 import crafting.CraftingTableNormal;
-import mods.ModLogger;
 import offlcersam.shipfoundry.ShipDefinition;
 import offlcersam.shipfoundry.ShipRegistrar;
 import org.spongepowered.asm.mixin.Mixin;
@@ -48,6 +48,6 @@ public abstract class CraftingTableMixin extends CraftingTable {
             added++;
         }
 
-        ModLogger.log("[ShipFoundry] Added " + added + " ship recipe(s) from JSON.");
+        SSFMLLogger.log("[ShipFoundry] Added " + added + " ship recipe(s) from JSON.");
     }
 }

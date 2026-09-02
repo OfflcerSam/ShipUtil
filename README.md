@@ -173,14 +173,14 @@ Otherwise mess with them as you want, hell make it a non-ship Icon for fun.
 ### `description`
 
 Whatever you type here gets more appended to it automatically.
-See [`shipStats`](#shipstats-optional) for the auto-generated "Improves: ..." line, and note that any"Inbuilt: X" label 
+See [`shipStats`](#shipstats-optional) for the auto-generated "Improves: ..." line, and note that any"Inbuilt: X" label
 you see on vanilla ships (e.g. Tyrannos's "Inbuilt: Offensive Overclock") is just plain text that you must write.
 So as said, if you want that phrasing for a [built-in device](#builtindevices-optional), type it into your own description the same way.
 
 ### `tier`
 
 Besides scaling `hull`/`cargo` (see below), tier sets the level requirement shown as "LvLxx is required for use".
-`Item.levelRequirement = tier * 10`, applied to every item type, not ship-specific. Tier 0 needs no level, tier 3 needs level 30, and so on. 
+`Item.levelRequirement = tier * 10`, applied to every item type, not ship-specific. Tier 0 needs no level, tier 3 needs level 30, and so on.
 It also feeds into `ShipList.getPrice()` indirectly through the scaled `hull`/`cargo` values (see the credit price formula under [`slots`](#slots) below).
 
 ### `renderIndex`
@@ -349,9 +349,12 @@ that doesn't support the one you gave it (see table) just logs a warning in-game
 | `WEAPON_ACCURACY` | No   | Yes     | Weapon Accuracy                                                                                                                                    |
 | `CRITICAL_CHANCE` | No   | Yes     | Critical Chance.                                                                                                                                   |
 | `CRITICAL_DAMAGE` | Yes  | Yes     | Critical Damage.                                                                                                                                   |
-| `CARGO_SPACE`     | Yes  | Yes     | Cargo Space.                                                                                                                                       |
+| `MINING_POWER`    | Yes  | No      | Mining Power.                                                                                                                                      |
+| `MINING_DAMAGE`   | Yes  | Yes     | Mining Damage.                                                                                                                                     |
 | `CLOAK_POWER`     | No   | Yes     | Only applies if the ship has a cloak installed.                                                                                                    |
 | `CLOAK_EVASION`   | No   | Yes     | Only applies if the ship has a cloak installed.                                                                                                    |
+| `SPEED_BONUS`     | Yes  | No      | New in 0.6.0.0. Ship's maximum speed.                                                                                                              |
+| `CARGO_SPACE`     | Yes  | Yes     | Cargo Space.                                                                                                                                       |
 | `JUMP_RANGE`      | Yes  | Yes     | Only applies if the ship has a jump drive.                                                                                                         |
 | `JUMP_CHARGE`     | Yes  | Yes     | Only applies if the ship has a jump drive.                                                                                                         |
 | `ENERGY_BANK`     | Yes  | Yes     | Max energy capacity.                                                                                                                               |
@@ -369,12 +372,23 @@ that doesn't support the one you gave it (see table) just logs a warning in-game
 | `HULL_REPAIR`     | Yes  | Yes     | Hull Regen.                                                                                                                                        |
 | `HULL_RESIST`     | No   | Yes     | **Currently does nothing.** - `ShipList.compile()`'s case for this stat is an empty switch case in this game version, so setting it has no effect. |
 | `HULL_SOAK`       | Yes  | No      | **Currently does nothing.**, same reason as `HULL_RESIST`.                                                                                         |
-| `FIGHTER_BONUS`   | Yes  | No      | Fighter slot count.                                                                                                                                |
-| `MINING_POWER`    | Yes  | No      | Mining Power.                                                                                                                                      |
-| `MINING_DAMAGE`   | Yes  | No      | Mining Damage.                                                                                                                                     |
+| `MISSILE_SLOT`    | Yes  | No      | Missile salvo size. Named `MISSILE_BONUS` before 0.6.0.0.                                                                                          |
+| `MISSILE_DAMAGE`  | Yes  | Yes     | New in 0.6.0.0. Missile damage per shot.                                                                                                           |
+| `FIGHTER_SLOT`    | Yes  | No      | Fighter slot count. Named `FIGHTER_BONUS` before 0.6.0.0.                                                                                          |
+| `FIGHTER_DAMAGE`  | Yes  | Yes     | New in 0.6.0.0. Fighter damage per shot.                                                                                                           |
+| `FIGHTER_ROF`     | Yes  | Yes     | New in 0.6.0.0. Fighter rate of fire.                                                                                                              |
+| `PLASMA_RANGE`    | Yes  | Yes     | New in 0.6.0.0. Plasma weapon range.                                                                                                               |
+| `PLASMA_DAMAGE`   | Yes  | Yes     | New in 0.6.0.0. Plasma weapon damage.                                                                                                              |
+| `PLASMA_ENERGY`   | No   | Yes     | New in 0.6.0.0. Plasma weapon energy cost per shot.                                                                                                |
+| `RIFLE_DAMAGE`    | Yes  | Yes     | New in 0.6.0.0. Rifle weapon damage.                                                                                                               |
+| `RADIO_DAMAGE`    | Yes  | Yes     | New in 0.6.0.0. Disruptor weapon damage.                                                                                                           |
+| `RADIO_ENERGY`    | No   | Yes     | New in 0.6.0.0. Disruptor weapon energy cost per shot.                                                                                             |
+| `LASER_DAMAGE`    | Yes  | Yes     | New in 0.6.0.0. Laser weapon damage (excludes mining beams).                                                                                       |
+| `LASER_ENERGY`    | No   | Yes     | New in 0.6.0.0. Laser weapon energy cost per shot (excludes mining beams).                                                                         |
+| `BEAM_DAMAGE`     | Yes  | Yes     | New in 0.6.0.0. Beam-type weapon damage to non-asteroid targets (excludes lasers).                                                                 |
+| `PLATFORM_DAMAGE` | Yes  | Yes     | New in 0.6.0.0. Deployed platform damage - decays the further the platform drifts from the ship.                                                   |
 | `PLATFORM_SLOT`   | Yes  | No      | Bonus deployable platform slots.                                                                                                                   |
 | `STATION_SLOT`    | Yes  | No      | Bonus deployable station slots.                                                                                                                    |
-| `MISSILE_BONUS`   | Yes  | No      | Missile salvo size.                                                                                                                                |
 
 Every stat bonus you give a ship automatically shows up in its in-game description, exactly like vanilla ships do.
 So you don't need to write this text yourself or do anything extra, it's automatic.

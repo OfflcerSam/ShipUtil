@@ -1,9 +1,11 @@
 package offlcersam.shipfoundry.mixin;
 
-import _database.SpawnMacro;
 import _database.Unique_NPC_Drops;
+import _database.SpawnMacro;
+import game.objects.FloatingItem;
 import game.objects.SpaceShip;
 import game.world.Sector;
+import illuminatus.core.datastructures.List;
 import illuminatus.core.tools.util.Utils;
 import offlcersam.shipfoundry.ShipDefinition;
 import offlcersam.shipfoundry.ShipRegistrar;
@@ -16,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class UniqueNPCDropsMixin {
 
     @Inject(method = "dropSpecial", at = @At("HEAD"))
-    private static void shipfoundry$dropUniqueLoot(int x, int y, Sector sector, SpaceShip ship, CallbackInfoReturnable<Boolean> cir) {
+    private static void shipfoundry$dropUniqueLoot(List<FloatingItem> addTo, int x, int y, Sector sector, SpaceShip ship, boolean isBoss, int lootTier, CallbackInfoReturnable<Boolean> cir) {
         if (ship == null) {
             return;
         }

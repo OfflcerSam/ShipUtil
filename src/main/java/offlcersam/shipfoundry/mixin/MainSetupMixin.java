@@ -13,7 +13,7 @@ public class MainSetupMixin {
             method = "setup",
             at = @At(
                     value = "INVOKE",
-                    target = "Lgame/weapons/WeaponSlotLayoutList;init()V",
+                    target = "Lgame/weapons/WeaponLayout;init()V",
                     shift = At.Shift.AFTER
             )
     )

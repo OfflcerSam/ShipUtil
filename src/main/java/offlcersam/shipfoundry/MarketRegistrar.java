@@ -1,8 +1,8 @@
 package offlcersam.shipfoundry;
 
+import _settings.Localization;
 import game.markets.Market;
 import game.markets.MarketDatabase;
-import game.markets.MarketItem;
 import illuminatus.core.datastructures.List;
 import items.Item;
 import mods.ModLogger;
@@ -13,6 +13,8 @@ import java.lang.reflect.Field;
  * Registers ships that opted into market listings through their JSON data.
  */
 public final class MarketRegistrar {
+
+    private static final int PRODUCES_SOMETIMES = 3;
 
     private static boolean registered;
 
@@ -52,16 +54,9 @@ public final class MarketRegistrar {
                 if (market.stationMatches(501) || market.stationMatches(511)) {
 
                     for (int shipID : ships) {
-                        MarketItem listing = new MarketItem(
-                                shipID,
-                                MarketItem.BUY_AND_SELL_ALWAYS
-                        );
-
-                        if (listing.item != null) {
-                            Item.markAsMarketItem(listing.item);
-                        }
-
-                        market.addChecked(listing);
+                        Item shipItem = new Item(shipID);
+                        Item.markAsMarketItem(shipItem);
+                        market.addChecked(shipItem, PRODUCES_SOMETIMES);
                         addedShips++;
                     }
 

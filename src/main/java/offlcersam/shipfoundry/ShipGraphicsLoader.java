@@ -1,6 +1,6 @@
 package offlcersam.shipfoundry;
 
-import mods.ModLogger;
+import com.sector.bridge.SSFMLLogger;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,7 +26,7 @@ public final class ShipGraphicsLoader {
         Path sourceTexture = modFolder.resolve(textureFileName);
 
         if (!Files.isRegularFile(sourceTexture)) {
-            ModLogger.log(
+            SSFMLLogger.log(
                     "[ShipFoundry] No \"" + textureFileName
                             + "\" found next to ship id " + def.id()
                             + "'s JSON in \"" + modFolder.getFileName()
@@ -41,12 +41,12 @@ public final class ShipGraphicsLoader {
         try {
             Files.createDirectories(entityFolder);
             Files.copy(sourceTexture, destinationTexture, StandardCopyOption.REPLACE_EXISTING);
-            ModLogger.log(
+            SSFMLLogger.log(
                     "[ShipFoundry] Copied ship texture " + sourceTexture
                             + " -> " + destinationTexture
             );
         } catch (IOException e) {
-            ModLogger.log(
+            SSFMLLogger.log(
                     "[ShipFoundry] Failed to copy ship texture " + sourceTexture
                             + " to " + destinationTexture + ": " + e
             );

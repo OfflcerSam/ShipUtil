@@ -1,8 +1,8 @@
 package offlcersam.shipfoundry;
 
+import com.sector.bridge.SSFMLLogger;
 import game.world.SectorGenerator;
 import illuminatus.core.tools.util.Random;
-import mods.ModLogger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,13 +32,7 @@ public final class NPCRegistrar {
     // Pool of custom ship base IDs eligible to replace vanilla police spawns (not tiered).
     private static final List<Integer> POLICE_POOL = new ArrayList<>();
 
-    // Vanilla ticket count for spawnPolice(Sector,int): rngVal(0,4) has 5 equally-likely
-    // outcomes (1 ticket rolls ship 19, the other 4 roll ship 90).
-    private static final int VANILLA_POLICE_POOL_SIZE = 5;
-
-    // Vanilla ticket count for spawnTempPoliceMob(): rngSelection(20,20,20,19) is a
-    // 4-entry pool (3 tickets ship 20, 1 ticket ship 19). Used for temp/escort police groups.
-    private static final int VANILLA_TEMP_POLICE_POOL_SIZE = 4;
+    private static final int VANILLA_POLICE_POOL_SIZE = 1;
 
     private static final ThreadLocal<Integer> STASHED_TIER = ThreadLocal.withInitial(() -> 0);
 
@@ -64,7 +58,7 @@ public final class NPCRegistrar {
         for (int i = 0; i < Math.max(1, weight); i++) {
             pool.add(shipBaseId);
         }
-        ModLogger.log("[ShipFoundry] Registered ship " + shipBaseId + " as tiered NPC (tier " + tier + ", weight " + weight + ")");
+        SSFMLLogger.log("[ShipFoundry] Registered ship " + shipBaseId + " as tiered NPC (tier " + tier + ", weight " + weight + ")");
     }
 
     /**
@@ -76,7 +70,7 @@ public final class NPCRegistrar {
         for (int i = 0; i < Math.max(1, weight); i++) {
             pool.add(shipBaseId);
         }
-        ModLogger.log("[ShipFoundry] Registered ship " + shipBaseId + " as boss spawn (sector tier " + sectorTier + ", weight " + weight + ")");
+        SSFMLLogger.log("[ShipFoundry] Registered ship " + shipBaseId + " as boss spawn (sector tier " + sectorTier + ", weight " + weight + ")");
     }
 
     // Called from SpawnNPCMixin right after the vanilla tier switch in spawnTieredMob.
@@ -104,17 +98,19 @@ public final class NPCRegistrar {
     }
 
     /**
-     * Makes a ship eligible to appear as police spawn. (Both single spawnPolice roll and the grouped spawnTempPoliceMob roll share this pool).
+     * Makes a ship eligible to appear as police spawn (Police Cruiser/Carrier/Corvette are all unified through
+     * one spawnPolice(...) in 0.6.0.0, so this single pool covers all of them - see rollPolice).
      * Not tiered, as police spawns are not tier-gated, but same weighting mechanic as the registerTieredMob/registerBoss.
      */
     public static void registerPolice(int shipBaseId, int weight) {
         for (int i = 0; i < Math.max(1, weight); i++) {
             POLICE_POOL.add(shipBaseId);
         }
-        ModLogger.log("[ShipFoundry] Registered ship " + shipBaseId + " as police spawn (weight " + weight + ")");
+        SSFMLLogger.log("[ShipFoundry] Registered ship " + shipBaseId + " as police spawn (weight " + weight + ")");
     }
 
-    // Called from SpawnNPCMixin right after spawnPolice's switch converges on a chosen ship id.
+    // Called from SpawnNPCMixin right after spawnPolice resolves which literal ship id (Cruiser/Carrier/Corvette)
+    // it was going to spawn - see the VANILLA_POLICE_POOL_SIZE comment above for why that's just 1 now.
     public static int rollPolice(int vanillaShipId) {
         if (POLICE_POOL.isEmpty()) {
             return vanillaShipId;
@@ -122,16 +118,6 @@ public final class NPCRegistrar {
         int totalTickets = VANILLA_POLICE_POOL_SIZE + POLICE_POOL.size();
         int roll = rng().nextInt(totalTickets);
         return roll < VANILLA_POLICE_POOL_SIZE ? vanillaShipId : POLICE_POOL.get(roll - VANILLA_POLICE_POOL_SIZE);
-    }
-
-    // Called from SpawnNPCMixin right after spawnTempPoliceMob's per-iteration roll.
-    public static int rollTempPolice(int vanillaShipId) {
-        if (POLICE_POOL.isEmpty()) {
-            return vanillaShipId;
-        }
-        int totalTickets = VANILLA_TEMP_POLICE_POOL_SIZE + POLICE_POOL.size();
-        int roll = rng().nextInt(totalTickets);
-        return roll < VANILLA_TEMP_POLICE_POOL_SIZE ? vanillaShipId : POLICE_POOL.get(roll - VANILLA_TEMP_POLICE_POOL_SIZE);
     }
 
     private static Random rng() {

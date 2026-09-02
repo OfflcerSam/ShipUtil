@@ -1,5 +1,6 @@
 package offlcersam.shipfoundry;
 
+import com.sector.bridge.SSFMLLogger;
 import items.lists.ShipList;
 import mods.ModLogger;
 import net.fabricmc.loader.api.FabricLoader;
@@ -127,7 +128,7 @@ public final class ShipUtilLoader {
         try {
             text = Files.readString(file, StandardCharsets.UTF_8);
         } catch (IOException e) {
-            ModLogger.log("[ShipFoundry] Could not read " + file + ": " + e);
+            SSFMLLogger.log("[ShipFoundry] Could not read " + file + ": " + e);
             return false;
         }
 
@@ -137,7 +138,7 @@ public final class ShipUtilLoader {
             JsonValue root = JsonParser.parse(text);
             def = ShipDefinition.fromJson(root);
         } catch (JsonValue.JsonException e) {
-            ModLogger.log(
+            SSFMLLogger.log(
                     "[ShipFoundry] Invalid ship JSON in " + file
                             + " (mod \"" + modName + "\"): "
                             + e.getMessage()
@@ -148,7 +149,7 @@ public final class ShipUtilLoader {
         String owner = CLAIMED_IDS.get(def.id());
 
         if (owner != null) {
-            ModLogger.log(
+            SSFMLLogger.log(
                     "[ShipFoundry] Skipping " + file
                             + ": ship id " + def.id()
                             + " is already claimed by mod \"" + owner
@@ -160,7 +161,7 @@ public final class ShipUtilLoader {
         try {
             ShipRegistrar.registerShip(def);
         } catch (Exception e) {
-            ModLogger.log(
+            SSFMLLogger.log(
                     "[ShipFoundry] Failed to register ship id "
                             + def.id() + " from " + file + ": " + e
             );

@@ -1,5 +1,6 @@
 package offlcersam.shipfoundry;
 
+import com.sector.bridge.SSFMLLogger;
 import game.weapons.WeaponSlotLayoutList;
 import game.weapons.WeaponTurretPlacement;
 import illuminatus.core.graphics.Color;
@@ -7,7 +8,6 @@ import items.ItemTypeConstantsInterface;
 import items.Stat;
 import items.TypeTag;
 import items.lists.ShipList;
-import mods.ModLogger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,7 +59,7 @@ public final class ShipRegistrar {
     /** Registers a ship ID and remembers it for later use. */
     private static int registerShipID(int id) {
         REGISTERED_SHIP_IDS.add(id);
-        ModLogger.log("[ShipFoundry] Added ship ID to registry: " + id);
+        SSFMLLogger.log("[ShipFoundry] Added ship ID to registry: " + id);
         return id;
     }
 
@@ -117,7 +117,7 @@ public final class ShipRegistrar {
         HULL_TYPE_OVERRIDES.put(def.id(), hullType);
 
         if (hullType != HULL_TYPE_SHIP) {
-            ModLogger.log(
+            SSFMLLogger.log(
                     "[ShipFoundry] Registered ship " + def.name()
                             + " as a " + (hullType == HULL_TYPE_STATION ? "station" : "platform")
                             + " - if this is the intent all is fine."
@@ -131,12 +131,12 @@ public final class ShipRegistrar {
                 statBonuses.add(new StatBonus(stat, shipStat.flat(), shipStat.percent()));
             }
             SHIP_STATS.put(def.id(), List.copyOf(statBonuses));
-            ModLogger.log("[ShipFoundry] Registered " + statBonuses.size() + " shipStats bonus(es) for ship " + def.name());
+            SSFMLLogger.log("[ShipFoundry] Registered " + statBonuses.size() + " shipStats bonus(es) for ship " + def.name());
         }
 
         if (!def.builtInDevices().isEmpty()) {
             BUILT_IN_DEVICES.put(def.id(), def.builtInDevices());
-            ModLogger.log("[ShipFoundry] Registered " + def.builtInDevices().size() + " built-in device(s) for ship " + def.name());
+            SSFMLLogger.log("[ShipFoundry] Registered " + def.builtInDevices().size() + " built-in device(s) for ship " + def.name());
         }
 
         ShipList.write(
@@ -157,17 +157,19 @@ public final class ShipRegistrar {
                 def.shieldSlots(),
                 def.deviceSlots(),
                 def.moduleSlots(),
-                def.engineSlots()
+                def.engineSlots(),
+                false,
+                false
         );
 
         if (def.registration().market()) {
             MARKET_SHIP_IDS.add(def.id());
-            ModLogger.log("[ShipFoundry] Registered ship " + def.name() + " for market listings");
+            SSFMLLogger.log("[ShipFoundry] Registered ship " + def.name() + " for market listings");
         }
 
         LOADED_SHIPS.add(def);
 
-        ModLogger.log("[ShipFoundry] Registered ship " + def.name() + " (id: " + def.id() + ")");
+        SSFMLLogger.log("[ShipFoundry] Registered ship " + def.name() + " (id: " + def.id() + ")");
     }
 
     /**
@@ -222,8 +224,7 @@ public final class ShipRegistrar {
     }
 
     /**
-     * Resolves a vanilla WeaponSlotLayoutList constant name (e.g. "S_10_T") to the layout index it was assigned at WeaponSlotLayoutList.init().
-     * Case-insensitive, matching resolveConstant's convention.
+     * Resolves a vanilla WeaponSlotLayoutList constant name. Case-insensitive, matching resolveConstant's convention.
      */
     private static int resolveVanillaWeaponLayout(String name) {
         try {

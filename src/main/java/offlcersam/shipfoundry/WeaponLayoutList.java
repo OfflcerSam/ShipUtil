@@ -2,7 +2,6 @@ package offlcersam.shipfoundry;
 
 import game.weapons.WeaponSlotLayoutList;
 import illuminatus.core.datastructures.List;
-import mods.ModLogger;
 import game.weapons.WeaponTurretPlacement;
 
 /*

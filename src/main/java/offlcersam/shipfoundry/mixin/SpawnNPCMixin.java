@@ -12,10 +12,12 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+// Sector Space 0.6.0.0 moved SpawnNPC and SpawnMacro from _database to game.spawns as part of the
+// "Encounters spawning system rewrite" - see MainSetupMixin/ShipRegistrar for the other 0.6.0.0 breakages.
 @Mixin(value = SpawnNPC.class, remap = false)
 public class SpawnNPCMixin {
 
-    // TIERED NPC SPAWNING
+    // TIERED NPC SPAWNING - spawnTieredMob's own signature is unchanged in 0.6.0.0, only the package moved.
     @Inject(
             method = "spawnTieredMob(IIILgame/world/Sector;ZIIZII)Lilluminatus/core/datastructures/List;",
             at = @At("HEAD")
@@ -31,7 +33,7 @@ public class SpawnNPCMixin {
             method = "spawnTieredMob(IIILgame/world/Sector;ZIIZII)Lilluminatus/core/datastructures/List;",
             at = @At(
                     value = "INVOKE",
-                    target = "L_database/SpawnMacro;generateShip(IILgame/world/Sector;III)Lgame/objects/SpaceShip;"
+                    target = "Lgame/spawns/SpawnMacro;generateShip(IILgame/world/Sector;III)Lgame/objects/SpaceShip;"
             )
     )
     private static SpaceShip shipfoundry$redirectTieredMobShip(int xPos, int yPos, Sector sector,
@@ -43,10 +45,10 @@ public class SpawnNPCMixin {
 
     // POLICE SPAWNING
     @Redirect(
-            method = "spawnPolice(Lgame/world/Sector;I)V",
+            method = "spawnPolice(Lgame/world/Sector;IIIIZZZ)Lgame/objects/SpaceShip;",
             at = @At(
                     value = "INVOKE",
-                    target = "L_database/SpawnMacro;generateShip(IILgame/world/Sector;III)Lgame/objects/SpaceShip;"
+                    target = "Lgame/spawns/SpawnMacro;generateShip(IILgame/world/Sector;III)Lgame/objects/SpaceShip;"
             )
     )
     private static SpaceShip shipfoundry$redirectPoliceShip(int xPos, int yPos, Sector sector,
@@ -56,26 +58,12 @@ public class SpawnNPCMixin {
         return SpawnMacro.generateShip(xPos, yPos, sector, hostilityConstant, rolled, factionIndex);
     }
 
-    @Redirect(
-            method = "spawnTempPoliceMob(IIILgame/world/Sector;)Lilluminatus/core/datastructures/List;",
-            at = @At(
-                    value = "INVOKE",
-                    target = "L_database/SpawnMacro;generateShip(IILgame/world/Sector;III)Lgame/objects/SpaceShip;"
-            )
-    )
-    private static SpaceShip shipfoundry$redirectTempPoliceShip(int xPos, int yPos, Sector sector,
-                                                                int hostilityConstant, int spawnIndex,
-                                                                int factionIndex) {
-        int rolled = NPCRegistrar.rollTempPolice(spawnIndex);
-        return SpawnMacro.generateShip(xPos, yPos, sector, hostilityConstant, rolled, factionIndex);
-    }
-
-    // BOSS SPAWNING
+    // BOSS SPAWNING - spawnBoss's own signature is unchanged in 0.6.0.0, only the package moved.
     @Redirect(
             method = "spawnBoss(Lgame/world/Sector;I)V",
             at = @At(
                     value = "INVOKE",
-                    target = "L_database/SpawnNPC;spawnBoss(IILgame/world/Sector;I)V"
+                    target = "Lgame/spawns/SpawnNPC;spawnBoss(IILgame/world/Sector;I)V"
             )
     )
     private static void shipfoundry$redirectBoss(int shipIndex, int faction, Sector sector, int bossSlot) {

@@ -1,7 +1,7 @@
 package offlcersam.shipfoundry;
 
+import com.sector.bridge.SSFMLLogger;
 import game.Player;
-import mods.ModLogger;
 
 /*
     Grants ships to a debug character's cargo hold on load, driven off the JSON registry:
@@ -62,12 +62,12 @@ public final class DebugItemGrant {
         }
 
         if (Player.ship == null || Player.ship.cargo == null) {
-            ModLogger.log("[ShipFoundry] Could not grant ships: player cargo is not loaded.");
+            SSFMLLogger.log("[ShipFoundry] Could not grant ships: player cargo is not loaded.");
             return;
         }
 
         if (databaseIds.length == 0) {
-            ModLogger.log("[ShipFoundry] No registered ships available to grant.");
+            SSFMLLogger.log("[ShipFoundry] No registered ships available to grant.");
             return;
         }
 
@@ -80,7 +80,7 @@ public final class DebugItemGrant {
 
         shipsGranted = true;
 
-        ModLogger.log(
+        SSFMLLogger.log(
                 "[ShipFoundry] Granted "
                         + granted
                         + " ship(s) from "
