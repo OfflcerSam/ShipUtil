@@ -293,7 +293,7 @@ all.
 
 Game update: `MarketItem.BUY_AND_SELL_ALWAYS` (a single constant covering both directions on one item)
 was removed. Vanilla now achieves "buy and sell" by using two *different* item ids with two different
-constants (`PRODUCES_ALWAYS` / `CONSUMES_ALWAYS`), never the same id twice - see `MarketList.writeMilitaryStation()`.
+constants (`PRODUCES_ALWAYS` / `CONSUMES_ALWAYS`), never the same id twice.
 Since our custom ships only have one item id apiece, `produce`/`consume` independently control whether
 `MarketRegistrar` registers a `PRODUCES_ALWAYS` entry, a `CONSUMES_ALWAYS` entry, or both for that id.
 `"market": {}` (both flags at their `true` default) reproduces the old always-both behavior. Setting both
