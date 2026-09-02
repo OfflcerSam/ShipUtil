@@ -1,11 +1,11 @@
 package offlcersam.shipfoundry;
 
 import _settings.Localization;
+import com.sector.bridge.SSFMLLogger;
 import game.markets.Market;
 import game.markets.MarketDatabase;
 import illuminatus.core.datastructures.List;
 import items.Item;
-import mods.ModLogger;
 
 import java.lang.reflect.Field;
 
@@ -36,7 +36,7 @@ public final class MarketRegistrar {
         int[] ships = ShipRegistrar.getMarketShipDatabaseIDs();
 
         if (ships.length == 0) {
-            ModLogger.log("[ShipFoundry] No custom ships opted into market registration");
+            SSFMLLogger.log("[ShipFoundry] No custom ships opted into market registration");
             return;
         }
 
@@ -55,7 +55,7 @@ public final class MarketRegistrar {
 
                     for (int shipID : ships) {
                         Item shipItem = new Item(shipID);
-                        Item.markAsMarketItem(shipItem);
+                        Item.markAsMarketItem(shipItem, Localization.MARKET_UNIQUE_ITEM_TAG.string);
                         market.addChecked(shipItem, PRODUCES_SOMETIMES);
                         addedShips++;
                     }
@@ -66,7 +66,7 @@ public final class MarketRegistrar {
             }
         }
 
-        ModLogger.log(
+        SSFMLLogger.log(
                 "[ShipFoundry] Added "
                         + addedShips
                         + " custom ship listings to "
@@ -82,7 +82,7 @@ public final class MarketRegistrar {
             field.setAccessible(true);
             return (List<Market>) field.get(null);
         } catch (ReflectiveOperationException exception) {
-            ModLogger.log("[ShipFoundry] Could not access MarketDatabase markets: " + exception);
+            SSFMLLogger.log("[ShipFoundry] Could not access MarketDatabase markets: " + exception);
             return null;
         }
     }

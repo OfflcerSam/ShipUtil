@@ -20,10 +20,10 @@ public class ShipListMixin {
             Stat stat = bonus.stat();
 
             if (bonus.flat() != null) {
-                stat.flatVal(bonus.flat());
+                stat.flat(bonus.flat());
             }
             if (bonus.percent() != null) {
-                stat.percentVal(bonus.percent());
+                stat.percent(bonus.percent());
             }
         }
     }

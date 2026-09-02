@@ -1,7 +1,7 @@
 package offlcersam.shipfoundry.mixin;
 
-import _database.SpawnMacro;
-import _database.SpawnNPC;
+import game.spawns.SpawnMacro;
+import game.spawns.SpawnNPC;
 import game.objects.SpaceShip;
 import game.world.Sector;
 import illuminatus.core.datastructures.List;

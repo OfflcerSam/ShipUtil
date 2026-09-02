@@ -2,7 +2,6 @@ package offlcersam.shipfoundry;
 
 import com.sector.bridge.SSFMLLogger;
 import items.lists.ShipList;
-import mods.ModLogger;
 import net.fabricmc.loader.api.FabricLoader;
 import offlcersam.shipfoundry.json.JsonParser;
 import offlcersam.shipfoundry.json.JsonValue;
@@ -55,7 +54,7 @@ public final class ShipUtilLoader {
         Path shipsRoot = gameDir.resolve(SHIPS_FOLDER_NAME);
 
         if (!Files.isDirectory(shipsRoot)) {
-            ModLogger.log(
+            SSFMLLogger.log(
                     "[ShipFoundry] No \"" + SHIPS_FOLDER_NAME
                             + "\" folder found at " + shipsRoot
                             + " - nothing to load."
@@ -71,7 +70,7 @@ public final class ShipUtilLoader {
                 totalLoaded += loadModFolder(modFolder, loadedShips);
             }
         } catch (IOException e) {
-            ModLogger.log("[ShipFoundry] Failed to list " + shipsRoot + ": " + e);
+            SSFMLLogger.log("[ShipFoundry] Failed to list " + shipsRoot + ": " + e);
             return;
         }
 
@@ -91,7 +90,7 @@ public final class ShipUtilLoader {
             }
         }
 
-        ModLogger.log(
+        SSFMLLogger.log(
                 "[ShipFoundry] Loaded " + totalLoaded
                         + " ship(s) total from " + shipsRoot
         );
@@ -111,10 +110,10 @@ public final class ShipUtilLoader {
                 }
             }
         } catch (IOException e) {
-            ModLogger.log("[ShipFoundry] Failed to list " + modFolder + ": " + e);
+            SSFMLLogger.log("[ShipFoundry] Failed to list " + modFolder + ": " + e);
         }
 
-        ModLogger.log(
+        SSFMLLogger.log(
                 "[ShipFoundry] Loaded " + loaded
                         + " ship(s) from ship pack folder \"" + modName + "\""
         );

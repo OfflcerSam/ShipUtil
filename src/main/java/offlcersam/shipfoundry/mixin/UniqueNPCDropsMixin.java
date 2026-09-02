@@ -1,9 +1,9 @@
 package offlcersam.shipfoundry.mixin;
 
 import _database.Unique_NPC_Drops;
-import _database.SpawnMacro;
 import game.objects.FloatingItem;
 import game.objects.SpaceShip;
+import game.spawns.SpawnMacro;
 import game.world.Sector;
 import illuminatus.core.datastructures.List;
 import illuminatus.core.tools.util.Utils;
